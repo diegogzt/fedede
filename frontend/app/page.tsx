@@ -1,156 +1,124 @@
-import React, { useState } from "react";
+﻿import React from "react";
 import {
-  Upload,
-  FileText,
-  AlertCircle,
-  CheckCircle,
-  Download,
+  ArrowUpRight,
+  TrendingUp,
+  Users,
+  DollarSign,
+  Activity,
 } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-export default function Home() {
-  const [file, setFile] = useState<File | null>(null);
-  const [status, setStatus] = useState<
-    "idle" | "uploading" | "processing" | "success" | "error"
-  >("idle");
-  const [message, setMessage] = useState("");
-  const [downloadUrl, setDownloadUrl] = useState("");
+const stats = [
+  {
+    label: "Ingresos Totales",
+    value: ",231,890",
+    change: "+12.5%",
+    trend: "up",
+    icon: DollarSign,
+  },
+  {
+    label: "Usuarios Activos",
+    value: "2,543",
+    change: "+8.2%",
+    trend: "up",
+    icon: Users,
+  },
+  {
+    label: "Reportes Generados",
+    value: "145",
+    change: "+23.1%",
+    trend: "up",
+    icon: Activity,
+  },
+  {
+    label: "Eficiencia",
+    value: "94.2%",
+    change: "+4.3%",
+    trend: "up",
+    icon: TrendingUp,
+  },
+];
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
-      setStatus("idle");
-      setMessage("");
-    }
-  };
-
-  const handleUpload = async () => {
-    if (!file) return;
-
-    setStatus("uploading");
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      // 1. Upload and Process
-      setStatus("processing");
-      const response = await fetch("http://localhost:8000/process-document", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Error processing document");
-      }
-
-      const data = await response.json();
-
-      if (data.status === "success") {
-        setStatus("success");
-        setDownloadUrl(`http://localhost:8000${data.download_url}`);
-        setMessage("Document processed successfully!");
-      } else {
-        throw new Error(data.detail || "Unknown error");
-      }
-    } catch (error) {
-      setStatus("error");
-      setMessage(error instanceof Error ? error.message : "An error occurred");
-    }
-  };
-
+export default function Dashboard() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-gray-50">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <h1 className="text-4xl font-bold text-gray-900 mb-8">
-          Finance Due Diligence
-        </h1>
+    <div className="p-10 space-y-10">
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {stats.map((stat, index) => (
+          <div
+            key={index}
+            className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl hover:border-[var(--primary)] transition-all duration-300 group relative overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
+              <stat.icon size={64} className="text-[var(--primary)]" />
+            </div>
+
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-black rounded-2xl border border-zinc-800 group-hover:border-[var(--primary)] transition-colors">
+                  <stat.icon size={24} className="text-[var(--primary)]" />
+                </div>
+                <span className="flex items-center gap-1 text-xs font-bold text-[var(--primary)] bg-[var(--primary)]/10 px-2 py-1 rounded-lg">
+                  {stat.change}
+                  <ArrowUpRight size={12} />
+                </span>
+              </div>
+
+              <h3 className="text-zinc-500 text-sm font-medium mb-1">
+                {stat.label}
+              </h3>
+              <p className="text-3xl font-black text-white tracking-tight">
+                {stat.value}
+              </p>
+            </div>
+          </div>
+        ))}
       </div>
 
-      <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
-        <div className="flex flex-col items-center gap-6">
-          {/* Upload Area */}
-          <div className="w-full">
-            <label
-              htmlFor="file-upload"
-              className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
-            >
-              <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                <Upload className="w-12 h-12 mb-4 text-gray-500" />
-                <p className="mb-2 text-sm text-gray-500">
-                  <span className="font-semibold">Click to upload</span> or drag
-                  and drop
-                </p>
-                <p className="text-xs text-gray-500">
-                  Excel files (.xlsx, .xls)
-                </p>
+      {/* Main Content Area */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Chart Section (Placeholder) */}
+        <div className="lg:col-span-2 bg-zinc-900/30 border border-zinc-800 rounded-3xl p-8 min-h-[400px] flex flex-col">
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-xl font-bold text-white">Resumen Financiero</h3>
+            <select className="bg-black border border-zinc-800 text-zinc-400 text-sm rounded-xl px-4 py-2 focus:outline-none focus:border-[var(--primary)]">
+              <option>Últimos 30 días</option>
+              <option>Este Año</option>
+            </select>
+          </div>
+          <div className="flex-1 flex items-center justify-center border-2 border-dashed border-zinc-800 rounded-2xl bg-black/20">
+            <p className="text-zinc-600 font-medium">Gráfico de Actividad</p>
+          </div>
+        </div>
+
+        {/* Recent Activity */}
+        <div className="bg-zinc-900/30 border border-zinc-800 rounded-3xl p-8">
+          <h3 className="text-xl font-bold text-white mb-6">
+            Actividad Reciente
+          </h3>
+          <div className="space-y-6">
+            {[1, 2, 3, 4].map((_, i) => (
+              <div
+                key={i}
+                className="flex items-start gap-4 pb-6 border-b border-zinc-800/50 last:border-0 last:pb-0"
+              >
+                <div className="w-2 h-2 mt-2 rounded-full bg-[var(--primary)] shadow-[0_0_8px_var(--primary)]"></div>
+                <div>
+                  <p className="text-sm font-bold text-white">
+                    Nuevo reporte generado
+                  </p>
+                  <p className="text-xs text-zinc-500 mt-1">
+                    Hace 2 horas Sistema
+                  </p>
+                </div>
               </div>
-              <input
-                id="file-upload"
-                type="file"
-                className="hidden"
-                onChange={handleFileChange}
-                accept=".xlsx,.xls"
-              />
-            </label>
+            ))}
           </div>
 
-          {/* File Info */}
-          {file && (
-            <div className="flex items-center gap-2 text-sm text-gray-700 bg-blue-50 px-4 py-2 rounded-full">
-              <FileText className="w-4 h-4" />
-              {file.name}
-            </div>
-          )}
-
-          {/* Action Button */}
-          <button
-            onClick={handleUpload}
-            disabled={
-              !file || status === "uploading" || status === "processing"
-            }
-            className={`w-full py-3 px-4 rounded-lg text-white font-medium transition-colors ${
-              !file || status === "uploading" || status === "processing"
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700"
-            }`}
-          >
-            {status === "uploading"
-              ? "Uploading..."
-              : status === "processing"
-              ? "Processing..."
-              : "Process Document"}
+          <button className="w-full mt-6 py-4 rounded-xl border border-zinc-800 text-zinc-400 text-sm font-bold hover:bg-[var(--primary)] hover:text-black hover:border-[var(--primary)] transition-all duration-300">
+            Ver todo el historial
           </button>
-
-          {/* Status Messages */}
-          {status === "success" && (
-            <Alert className="bg-green-50 border-green-200">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <AlertTitle className="text-green-800">Success</AlertTitle>
-              <AlertDescription className="text-green-700">
-                {message}
-                <div className="mt-2">
-                  <a
-                    href={downloadUrl}
-                    className="inline-flex items-center gap-2 text-sm font-medium text-green-800 hover:underline"
-                    download
-                  >
-                    <Download className="w-4 h-4" />
-                    Download Report
-                  </a>
-                </div>
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {status === "error" && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>{message}</AlertDescription>
-            </Alert>
-          )}
         </div>
       </div>
-    </main>
+    </div>
   );
 }

@@ -27,8 +27,8 @@ try:
 except ImportError:
     OPENPYXL_AVAILABLE = False
 
-from src.processors.models import QAReport, QAItem, Priority, Status
-from src.config.translations import TranslationManager, Language
+from app.processors.models import QAReport, QAItem, Priority, Status
+from app.config.translations import TranslationManager, Language
 
 logger = logging.getLogger(__name__)
 
@@ -802,3 +802,4 @@ class ExcelExporter:
                 ws.column_dimensions[letter].width = 10
             else:
                 ws.column_dimensions[letter].width = 12
+

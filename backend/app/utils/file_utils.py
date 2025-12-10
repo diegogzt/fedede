@@ -15,8 +15,8 @@ from typing import List, Optional, Union, Generator
 from datetime import datetime
 import hashlib
 
-from src.config.settings import get_settings
-from src.core.exceptions import (
+from app.config.settings import get_settings
+from app.core.exceptions import (
     FileNotFoundError,
     UnsupportedFileFormatError,
     FileSizeExceededError,
@@ -485,3 +485,4 @@ class FileUtils:
                 filepath=str(filepath),
                 reason=str(e)
             )
+

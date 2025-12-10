@@ -13,7 +13,7 @@ from datetime import datetime
 from collections import defaultdict
 import logging
 
-from src.processors.models import (
+from app.processors.models import (
     Account, BalanceSheet, Period, PeriodType
 )
 
@@ -471,3 +471,4 @@ class DataNormalizer:
             pairs.append((ytd_prev, ytd_curr))
         
         return pairs
+

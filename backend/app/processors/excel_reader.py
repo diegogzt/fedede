@@ -11,15 +11,15 @@ from typing import List, Optional, Dict, Any, Union
 import re
 import logging
 
-from src.processors.models import Account, BalanceSheet, Period
-from src.core.exceptions import (
+from app.processors.models import Account, BalanceSheet, Period
+from app.core.exceptions import (
     FileProcessingError,
     FileReadError,
     UnsupportedFileFormatError,
     EmptyDataError
 )
-from src.utils.file_utils import FileUtils
-from src.utils.validators import DataValidator
+from app.utils.file_utils import FileUtils
+from app.utils.validators import DataValidator
 
 # Alias para funciones
 validate_file_exists = FileUtils.validate_file_exists
@@ -486,3 +486,4 @@ def read_balance_file(file_path: Union[str, Path]) -> BalanceSheet:
     reader = ExcelReader(file_path)
     reader.read()
     return reader.to_balance_sheet()
+

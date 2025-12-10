@@ -15,7 +15,7 @@ from typing import Dict, List, Optional, Any, Union, Callable
 from datetime import datetime
 import logging
 
-from src.processors.models import (
+from app.processors.models import (
     Account,
     BalanceSheet,
     Period,
@@ -24,15 +24,15 @@ from src.processors.models import (
     QAItem,
     QAReport
 )
-from src.processors.financial_analyzer import FinancialAnalyzer, VariationResult
-from src.processors.data_normalizer import DataNormalizer
-from src.core.exceptions import ReportGenerationError
-from src.config.translations import TranslationManager, Language
-from backend.app.engine.rules import RuleEngine
+from app.processors.financial_analyzer import FinancialAnalyzer, VariationResult
+from app.processors.data_normalizer import DataNormalizer
+from app.core.exceptions import ReportGenerationError
+from app.config.translations import TranslationManager, Language
+from app.engine.rules import RuleEngine
 
 # Importar ExcelExporter
 try:
-    from src.processors.excel_exporter import ExcelExporter
+    from app.processors.excel_exporter import ExcelExporter
     EXCEL_EXPORTER_AVAILABLE = True
 except ImportError:
     EXCEL_EXPORTER_AVAILABLE = False
@@ -145,10 +145,7 @@ class QAGenerator:
         
         # Inicializar servicio de IA si está disponible y habilitado
         self._ai_service: Optional[AIService] = None
-        if self.use_ai and AI_AVAILABLE:
-            try:
-        # Inicializar servicio de IA si está disponible y habilitado
-        # (Eliminado por requerimiento de usuario: No AI)
+        # AI initialization disabled
         self._ai_service = None
     
     def _parse_ai_mode(self, mode_str: Optional[str]):
@@ -918,7 +915,7 @@ def process_balance_to_qa(
     Returns:
         Ruta del archivo generado
     """
-    from src.processors.excel_reader import ExcelReader
+    from app.processors.excel_reader import ExcelReader
     
     input_path = Path(input_file)
     
@@ -943,3 +940,4 @@ def process_balance_to_qa(
         return generator.export_to_excel(report, output_path)
     else:
         return generator.export_to_csv(report, output_path)
+

@@ -13,7 +13,7 @@ from pathlib import Path
 from dataclasses import dataclass, field
 from typing import Optional, List, Dict, Any
 import json
-from src.config.translations import Language
+from app.config.translations import Language
 
 
 @dataclass
@@ -354,3 +354,4 @@ def get_settings() -> Settings:
 APP_NAME = "FDD Automatizado"
 APP_VERSION = "0.1.0"
 APP_DESCRIPTION = "Sistema de Asistencia Automatizada para Due Diligence Financiero"
+

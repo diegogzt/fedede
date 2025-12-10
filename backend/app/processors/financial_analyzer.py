@@ -13,7 +13,7 @@ from typing import Dict, List, Optional, Tuple, Any
 from enum import Enum
 import logging
 
-from src.processors.models import (
+from app.processors.models import (
     Account, 
     BalanceSheet, 
     Period, 
@@ -23,8 +23,8 @@ from src.processors.models import (
     QAReport,
     Status
 )
-from src.processors.data_normalizer import DataNormalizer
-from src.config.settings import get_settings
+from app.processors.data_normalizer import DataNormalizer
+from app.config.settings import get_settings
 
 
 logger = logging.getLogger(__name__)
@@ -588,3 +588,4 @@ class FinancialAnalyzer:
         }
         
         return category_names.get(code[0], 'Otros')
+

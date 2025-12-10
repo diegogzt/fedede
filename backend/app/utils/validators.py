@@ -10,7 +10,7 @@ from datetime import datetime
 from decimal import Decimal, InvalidOperation
 import re
 
-from src.core.exceptions import (
+from app.core.exceptions import (
     DataValidationError,
     EmptyDataError,
     MissingColumnError,
@@ -452,3 +452,4 @@ class DataValidator:
                 report["valid"] = False
         
         return report
+

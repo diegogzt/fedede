@@ -15,7 +15,7 @@ from logging.handlers import RotatingFileHandler
 from typing import Optional
 from datetime import datetime
 
-from src.config.settings import get_settings
+from app.config.settings import get_settings
 
 
 class ColoredFormatter(logging.Formatter):
@@ -260,3 +260,4 @@ class LogContext:
             f"Completado: {self.operation} (tiempo: {elapsed_ms:.2f}ms)"
         )
         return True
+
