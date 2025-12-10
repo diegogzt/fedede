@@ -1,0 +1,82 @@
+# FDD Automatizado - Archivo .gitignore
+
+# Entornos virtuales
+venv/
+.venv/
+env/
+.env/
+finance/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Tests
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+logs/
+*.log
+
+# Cache
+.cache/
+*.cache
+
+# Datos temporales
+data/temp/
+*.tmp
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Configuración local (si contiene secrets)
+config.local.json
+.env.local
+
+data/rag_db/
+data/output/
+*.sqlite3
+
+# Node.js
+node_modules/
+.next/
+out/
+build/
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
