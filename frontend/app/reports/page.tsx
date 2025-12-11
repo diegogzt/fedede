@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { 
-  FileSpreadsheet, 
-  Download, 
-  Trash2, 
+import React, { useEffect, useState } from "react";
+import {
+  FileSpreadsheet,
+  Download,
+  Trash2,
   Search,
   Filter,
   RefreshCw,
@@ -13,42 +13,46 @@ import {
   Clock,
   AlertTriangle,
   ChevronDown,
-  Eye
-} from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { useFiles, useActiveFile, documentToFileData } from '@/lib/store';
-import { 
-  getHistory, 
-  downloadReport, 
-  deleteDocument, 
+  Eye,
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useFiles, useActiveFile, documentToFileData } from "@/lib/store";
+import {
+  getHistory,
+  downloadReport,
+  deleteDocument,
   formatDate,
-  ProcessedDocument 
-} from '@/lib/api';
+  ProcessedDocument,
+} from "@/lib/api";
 
-type StatusFilter = 'all' | 'success' | 'error' | 'processing';
+type StatusFilter = "all" | "success" | "error" | "processing";
 
 export default function ReportsPage() {
   const { files, setFiles, removeFile } = useFiles();
   const { setActiveFile } = useActiveFile();
-  
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [showFilters, setShowFilters] = useState(false);
 
   const loadHistory = async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const documents = await getHistory();
-      const fileDataList = documents.map((doc: ProcessedDocument) => documentToFileData(doc));
+      const fileDataList = documents.map((doc: ProcessedDocument) =>
+        documentToFileData(doc)
+      );
       setFiles(fileDataList);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al cargar el historial');
+      setError(
+        err instanceof Error ? err.message : "Error al cargar el historial"
+      );
     } finally {
       setLoading(false);
     }
@@ -65,41 +69,43 @@ export default function ReportsPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar este reporte?')) return;
-    
+    if (!confirm("¿Estás seguro de que quieres eliminar este reporte?")) return;
+
     try {
       const success = await deleteDocument(id);
       if (success) {
         removeFile(id);
       }
     } catch (err) {
-      console.error('Error al eliminar:', err);
+      console.error("Error al eliminar:", err);
     }
   };
 
-  const handleSelect = (file: typeof files[0]) => {
+  const handleSelect = (file: (typeof files)[0]) => {
     setActiveFile(file);
     // Navegar al dashboard
-    window.location.href = '/';
+    window.location.href = "/";
   };
 
   // Filtrar archivos
-  const filteredFiles = files.filter(file => {
-    const originalFilename = file.original_filename || '';
-    const filename = file.filename || '';
-    const matchesSearch = originalFilename.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         filename.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || file.status === statusFilter;
+  const filteredFiles = files.filter((file) => {
+    const originalFilename = file.original_filename || "";
+    const filename = file.filename || "";
+    const matchesSearch =
+      originalFilename.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      filename.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus =
+      statusFilter === "all" || file.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'success':
+      case "success":
         return <CheckCircle2 className="w-4 h-4 text-green-500" />;
-      case 'error':
+      case "error":
         return <AlertCircle className="w-4 h-4 text-red-500" />;
-      case 'processing':
+      case "processing":
         return <Clock className="w-4 h-4 text-yellow-500 animate-spin" />;
       default:
         return <AlertTriangle className="w-4 h-4 text-zinc-500" />;
@@ -108,25 +114,25 @@ export default function ReportsPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'success':
+      case "success":
         return <Badge variant="success">Completado</Badge>;
-      case 'error':
+      case "error":
         return <Badge variant="error">Error</Badge>;
-      case 'processing':
+      case "processing":
         return <Badge variant="warning">Procesando</Badge>;
       default:
         return <Badge>Desconocido</Badge>;
     }
   };
 
-  const getPriorityStats = (file: typeof files[0]) => {
+  const getPriorityStats = (file: (typeof files)[0]) => {
     const high = file.high_priority_count || 0;
     const medium = file.medium_priority_count || 0;
     const low = file.low_priority_count || 0;
     const total = high + medium + low;
-    
+
     if (total === 0) return null;
-    
+
     return (
       <div className="flex items-center gap-2 text-xs">
         {high > 0 && (
@@ -163,7 +169,9 @@ export default function ReportsPage() {
           disabled={loading}
           className="bg-zinc-800 text-white hover:bg-zinc-700"
         >
-          <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+          <RefreshCw
+            className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`}
+          />
           Actualizar
         </Button>
       </div>
@@ -179,20 +187,26 @@ export default function ReportsPage() {
                 type="text"
                 placeholder="Buscar por nombre de archivo..."
                 value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 rounded-lg border border-zinc-700 bg-zinc-800 text-white placeholder-zinc-500 focus:border-yellow-500 focus:outline-none"
               />
             </div>
-            
+
             {/* Filter Toggle */}
             <Button
               variant="outline"
               onClick={() => setShowFilters(!showFilters)}
-              className={`border-zinc-700 ${showFilters ? 'text-yellow-500' : 'text-zinc-400'}`}
+              className={`border-zinc-700 ${
+                showFilters ? "text-yellow-500" : "text-zinc-400"
+              }`}
             >
               <Filter className="w-4 h-4 mr-2" />
               Filtros
-              <ChevronDown className={`w-4 h-4 ml-2 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+              <ChevronDown
+                className={`w-4 h-4 ml-2 transition-transform ${
+                  showFilters ? "rotate-180" : ""
+                }`}
+              />
             </Button>
           </div>
 
@@ -201,19 +215,26 @@ export default function ReportsPage() {
             <div className="mt-4 pt-4 border-t border-zinc-800">
               <div className="flex items-center gap-2">
                 <span className="text-sm text-zinc-400">Estado:</span>
-                {(['all', 'success', 'error', 'processing'] as StatusFilter[]).map(status => (
+                {(
+                  ["all", "success", "error", "processing"] as StatusFilter[]
+                ).map((status) => (
                   <button
                     key={status}
                     onClick={() => setStatusFilter(status)}
                     className={`px-3 py-1 rounded-lg text-sm transition-colors
-                      ${statusFilter === status 
-                        ? 'bg-yellow-500 text-black' 
-                        : 'bg-zinc-800 text-zinc-400 hover:text-white'
+                      ${
+                        statusFilter === status
+                          ? "bg-yellow-500 text-black"
+                          : "bg-zinc-800 text-zinc-400 hover:text-white"
                       }`}
                   >
-                    {status === 'all' ? 'Todos' : 
-                     status === 'success' ? 'Completados' :
-                     status === 'error' ? 'Con errores' : 'Procesando'}
+                    {status === "all"
+                      ? "Todos"
+                      : status === "success"
+                      ? "Completados"
+                      : status === "error"
+                      ? "Con errores"
+                      : "Procesando"}
                   </button>
                 ))}
               </div>
@@ -260,13 +281,13 @@ export default function ReportsPage() {
             <div className="p-8 text-center">
               <FileSpreadsheet className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
               <p className="text-zinc-400">
-                {files.length === 0 
-                  ? 'No hay reportes generados aún' 
-                  : 'No se encontraron reportes con los filtros aplicados'}
+                {files.length === 0
+                  ? "No hay reportes generados aún"
+                  : "No se encontraron reportes con los filtros aplicados"}
               </p>
               {files.length === 0 && (
                 <Button
-                  onClick={() => window.location.href = '/data'}
+                  onClick={() => (window.location.href = "/data")}
                   className="mt-4 bg-yellow-500 text-black hover:bg-yellow-400"
                 >
                   Subir primer archivo
@@ -275,7 +296,7 @@ export default function ReportsPage() {
             </div>
           ) : (
             <div className="divide-y divide-zinc-800">
-              {filteredFiles.map(file => (
+              {filteredFiles.map((file) => (
                 <div
                   key={file.id}
                   className="p-4 hover:bg-zinc-800/50 transition-colors"
@@ -302,13 +323,13 @@ export default function ReportsPage() {
                             <span>{file.questions_generated} preguntas</span>
                           )}
                         </div>
-                        {file.status === 'success' && getPriorityStats(file)}
+                        {file.status === "success" && getPriorityStats(file)}
                       </div>
                     </div>
 
                     {/* Actions */}
                     <div className="flex items-center gap-2">
-                      {file.status === 'success' && (
+                      {file.status === "success" && (
                         <>
                           <Button
                             variant="outline"

@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import React, { useState, useCallback } from 'react';
-import { 
-  Upload, 
-  FileSpreadsheet, 
-  X, 
-  AlertCircle, 
-  Settings, 
+import React, { useState, useCallback } from "react";
+import {
+  Upload,
+  FileSpreadsheet,
+  X,
+  AlertCircle,
+  Settings,
   Sparkles,
   Languages,
   Calendar,
@@ -15,45 +15,50 @@ import {
   Loader2,
   CheckCircle2,
   ChevronDown,
-  ChevronUp
-} from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { useApp, useConfig, configToProcessConfig, documentToFileData } from '@/lib/store';
-import { processDocument, Language } from '@/lib/api';
+  ChevronUp,
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  useApp,
+  useConfig,
+  configToProcessConfig,
+  documentToFileData,
+} from "@/lib/store";
+import { processDocument, Language } from "@/lib/api";
 
 export default function DataPage() {
   const { addFile, setLoading, setError } = useApp();
   const { config, updateConfig } = useConfig();
-  
+
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
-  const [fileError, setFileError] = useState<string>('');
+  const [fileError, setFileError] = useState<string>("");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [resultMessage, setResultMessage] = useState('');
+  const [resultMessage, setResultMessage] = useState("");
 
-  const accept = '.xlsx,.xls,.xlsm,.csv,.txt';
+  const accept = ".xlsx,.xls,.xlsm,.csv,.txt";
   const maxSize = 100; // MB
 
   const validateFile = (file: File): boolean => {
-    setFileError('');
-    
-    const validExtensions = accept.split(',').map(ext => ext.trim());
-    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
-    
+    setFileError("");
+
+    const validExtensions = accept.split(",").map((ext) => ext.trim());
+    const fileExtension = "." + file.name.split(".").pop()?.toLowerCase();
+
     if (!validExtensions.includes(fileExtension)) {
       setFileError(`Formato no válido. Solo se aceptan: ${accept}`);
       return false;
     }
-    
+
     const fileSizeMB = file.size / (1024 * 1024);
     if (fileSizeMB > maxSize) {
       setFileError(`El archivo es muy grande. Máximo ${maxSize}MB`);
       return false;
     }
-    
+
     return true;
   };
 
@@ -61,28 +66,31 @@ export default function DataPage() {
     if (validateFile(file)) {
       setSelectedFile(file);
       setSuccess(false);
-      setResultMessage('');
+      setResultMessage("");
     }
   }, []);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true);
-    } else if (e.type === 'dragleave') {
+    } else if (e.type === "dragleave") {
       setDragActive(false);
     }
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    if (e.dataTransfer.files?.[0]) {
-      handleFile(e.dataTransfer.files[0]);
-    }
-  }, [handleFile]);
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDragActive(false);
+      if (e.dataTransfer.files?.[0]) {
+        handleFile(e.dataTransfer.files[0]);
+      }
+    },
+    [handleFile]
+  );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
@@ -92,36 +100,42 @@ export default function DataPage() {
 
   const removeFile = () => {
     setSelectedFile(null);
-    setFileError('');
+    setFileError("");
     setSuccess(false);
-    setResultMessage('');
+    setResultMessage("");
   };
 
   const handleProcess = async () => {
     if (!selectedFile) return;
-    
+
     setProcessing(true);
     setLoading(true);
     setError(null);
     setSuccess(false);
-    
+
     try {
-      const result = await processDocument(selectedFile, configToProcessConfig(config));
-      
+      const result = await processDocument(
+        selectedFile,
+        configToProcessConfig(config)
+      );
+
       if (result.success) {
         setSuccess(true);
         setResultMessage(result.message);
-        
+
         // Agregar al store si hay documento
         if (result.document) {
           addFile(documentToFileData(result.document));
         }
       } else {
-        setError(result.error || 'Error al procesar el documento');
-        setFileError(result.error || 'Error al procesar el documento');
+        setError(result.error || "Error al procesar el documento");
+        setFileError(result.error || "Error al procesar el documento");
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error de conexión con el servidor';
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Error de conexión con el servidor";
       setError(errorMessage);
       setFileError(errorMessage);
     } finally {
@@ -131,15 +145,23 @@ export default function DataPage() {
   };
 
   const formatFileSize = (bytes: number): string => {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(2) + " MB";
   };
 
-  const languageOptions: { value: Language; label: string; description: string }[] = [
-    { value: 'es', label: 'Español', description: 'Genera reporte en español' },
-    { value: 'en', label: 'English', description: 'Generate report in English' },
-    { value: 'both', label: 'Bilingüe', description: 'Genera ambos idiomas' },
+  const languageOptions: {
+    value: Language;
+    label: string;
+    description: string;
+  }[] = [
+    { value: "es", label: "Español", description: "Genera reporte en español" },
+    {
+      value: "en",
+      label: "English",
+      description: "Generate report in English",
+    },
+    { value: "both", label: "Bilingüe", description: "Genera ambos idiomas" },
   ];
 
   return (
@@ -157,19 +179,20 @@ export default function DataPage() {
         <CardContent className="p-0">
           <div
             className={`relative border-2 border-dashed rounded-lg p-8 transition-all duration-200 cursor-pointer
-              ${dragActive 
-                ? 'border-yellow-500 bg-yellow-500/5' 
-                : fileError 
-                  ? 'border-red-500 bg-red-500/5' 
+              ${
+                dragActive
+                  ? "border-yellow-500 bg-yellow-500/5"
+                  : fileError
+                  ? "border-red-500 bg-red-500/5"
                   : success
-                    ? 'border-green-500 bg-green-500/5'
-                    : 'border-zinc-700 hover:border-yellow-500/50 hover:bg-zinc-800/50'
+                  ? "border-green-500 bg-green-500/5"
+                  : "border-zinc-700 hover:border-yellow-500/50 hover:bg-zinc-800/50"
               }`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
             onDragOver={handleDrag}
             onDrop={handleDrop}
-            onClick={() => document.getElementById('file-input')?.click()}
+            onClick={() => document.getElementById("file-input")?.click()}
           >
             <input
               id="file-input"
@@ -182,22 +205,38 @@ export default function DataPage() {
 
             {!selectedFile ? (
               <div className="flex flex-col items-center gap-4">
-                <div className={`p-4 rounded-full ${dragActive ? 'bg-yellow-500/20' : 'bg-zinc-800'}`}>
-                  <Upload className={`w-8 h-8 ${dragActive ? 'text-yellow-500' : 'text-zinc-400'}`} />
+                <div
+                  className={`p-4 rounded-full ${
+                    dragActive ? "bg-yellow-500/20" : "bg-zinc-800"
+                  }`}
+                >
+                  <Upload
+                    className={`w-8 h-8 ${
+                      dragActive ? "text-yellow-500" : "text-zinc-400"
+                    }`}
+                  />
                 </div>
                 <div className="text-center">
                   <p className="text-white font-medium">
                     Arrastra un archivo aquí o haz clic para seleccionar
                   </p>
                   <p className="text-zinc-500 text-sm mt-1">
-                    Soporta Excel (.xlsx, .xls, .xlsm) y CSV (.csv, .txt) hasta {maxSize}MB
+                    Soporta Excel (.xlsx, .xls, .xlsm) y CSV (.csv, .txt) hasta{" "}
+                    {maxSize}MB
                   </p>
                 </div>
               </div>
             ) : (
-              <div className="flex items-center justify-between" onClick={e => e.stopPropagation()}>
+              <div
+                className="flex items-center justify-between"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <div className="flex items-center gap-4">
-                  <div className={`p-3 rounded-lg ${success ? 'bg-green-500/20' : 'bg-yellow-500/20'}`}>
+                  <div
+                    className={`p-3 rounded-lg ${
+                      success ? "bg-green-500/20" : "bg-yellow-500/20"
+                    }`}
+                  >
                     {success ? (
                       <CheckCircle2 className="w-6 h-6 text-green-500" />
                     ) : (
@@ -205,10 +244,16 @@ export default function DataPage() {
                     )}
                   </div>
                   <div>
-                    <p className="text-white font-medium">{selectedFile.name}</p>
-                    <p className="text-zinc-500 text-sm">{formatFileSize(selectedFile.size)}</p>
+                    <p className="text-white font-medium">
+                      {selectedFile.name}
+                    </p>
+                    <p className="text-zinc-500 text-sm">
+                      {formatFileSize(selectedFile.size)}
+                    </p>
                     {success && resultMessage && (
-                      <p className="text-green-400 text-sm mt-1">{resultMessage}</p>
+                      <p className="text-green-400 text-sm mt-1">
+                        {resultMessage}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -246,8 +291,12 @@ export default function DataPage() {
               onClick={() => setShowAdvanced(!showAdvanced)}
               className="text-zinc-400 hover:text-white"
             >
-              {showAdvanced ? 'Ocultar avanzado' : 'Mostrar avanzado'}
-              {showAdvanced ? <ChevronUp className="w-4 h-4 ml-1" /> : <ChevronDown className="w-4 h-4 ml-1" />}
+              {showAdvanced ? "Ocultar avanzado" : "Mostrar avanzado"}
+              {showAdvanced ? (
+                <ChevronUp className="w-4 h-4 ml-1" />
+              ) : (
+                <ChevronDown className="w-4 h-4 ml-1" />
+              )}
             </Button>
           </div>
         </CardHeader>
@@ -259,18 +308,21 @@ export default function DataPage() {
               Idioma del Reporte
             </label>
             <div className="grid grid-cols-3 gap-3">
-              {languageOptions.map(option => (
+              {languageOptions.map((option) => (
                 <button
                   key={option.value}
                   onClick={() => updateConfig({ language: option.value })}
                   className={`p-3 rounded-lg border transition-all text-left
-                    ${config.language === option.value
-                      ? 'border-yellow-500 bg-yellow-500/10 text-white'
-                      : 'border-zinc-700 bg-zinc-800/50 text-zinc-400 hover:border-zinc-600'
+                    ${
+                      config.language === option.value
+                        ? "border-yellow-500 bg-yellow-500/10 text-white"
+                        : "border-zinc-700 bg-zinc-800/50 text-zinc-400 hover:border-zinc-600"
                     }`}
                 >
                   <p className="font-medium">{option.label}</p>
-                  <p className="text-xs text-zinc-500 mt-1">{option.description}</p>
+                  <p className="text-xs text-zinc-500 mt-1">
+                    {option.description}
+                  </p>
                 </button>
               ))}
             </div>
@@ -289,7 +341,11 @@ export default function DataPage() {
                   <input
                     type="number"
                     value={config.fiscal_year_start}
-                    onChange={e => updateConfig({ fiscal_year_start: parseInt(e.target.value) || 2023 })}
+                    onChange={(e) =>
+                      updateConfig({
+                        fiscal_year_start: parseInt(e.target.value) || 2023,
+                      })
+                    }
                     className="w-full px-3 py-2 rounded-lg border border-zinc-700 bg-zinc-800 text-white focus:border-yellow-500 focus:outline-none"
                     min={2000}
                     max={2030}
@@ -305,7 +361,11 @@ export default function DataPage() {
                   <input
                     type="number"
                     value={config.fiscal_year_end}
-                    onChange={e => updateConfig({ fiscal_year_end: parseInt(e.target.value) || 2024 })}
+                    onChange={(e) =>
+                      updateConfig({
+                        fiscal_year_end: parseInt(e.target.value) || 2024,
+                      })
+                    }
                     className="w-full px-3 py-2 rounded-lg border border-zinc-700 bg-zinc-800 text-white focus:border-yellow-500 focus:outline-none"
                     min={2000}
                     max={2030}
@@ -325,7 +385,11 @@ export default function DataPage() {
                   <input
                     type="number"
                     value={config.variation_threshold}
-                    onChange={e => updateConfig({ variation_threshold: parseFloat(e.target.value) || 20 })}
+                    onChange={(e) =>
+                      updateConfig({
+                        variation_threshold: parseFloat(e.target.value) || 20,
+                      })
+                    }
                     className="w-full px-3 py-2 rounded-lg border border-zinc-700 bg-zinc-800 text-white focus:border-yellow-500 focus:outline-none"
                     min={0}
                     max={100}
@@ -345,7 +409,12 @@ export default function DataPage() {
                   <input
                     type="number"
                     value={config.materiality_threshold}
-                    onChange={e => updateConfig({ materiality_threshold: parseInt(e.target.value) || 100000 })}
+                    onChange={(e) =>
+                      updateConfig({
+                        materiality_threshold:
+                          parseInt(e.target.value) || 100000,
+                      })
+                    }
                     className="w-full px-3 py-2 rounded-lg border border-zinc-700 bg-zinc-800 text-white focus:border-yellow-500 focus:outline-none"
                     min={0}
                     step={10000}
@@ -406,8 +475,12 @@ export default function DataPage() {
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="w-6 h-6 text-green-500" />
                 <div>
-                  <p className="text-white font-medium">¡Análisis completado!</p>
-                  <p className="text-zinc-400 text-sm">El reporte Q&A ha sido generado correctamente</p>
+                  <p className="text-white font-medium">
+                    ¡Análisis completado!
+                  </p>
+                  <p className="text-zinc-400 text-sm">
+                    El reporte Q&A ha sido generado correctamente
+                  </p>
                 </div>
               </div>
               <div className="flex gap-2">
@@ -419,7 +492,7 @@ export default function DataPage() {
                   Subir otro archivo
                 </Button>
                 <Button
-                  onClick={() => window.location.href = '/reports'}
+                  onClick={() => (window.location.href = "/reports")}
                   className="bg-yellow-500 text-black hover:bg-yellow-400"
                 >
                   Ver Reportes

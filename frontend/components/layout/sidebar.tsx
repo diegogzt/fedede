@@ -19,35 +19,35 @@ import { usePathname } from "next/navigation";
 import { useFiles, useActiveFile } from "@/lib/store";
 
 const menuItems = [
-  { 
-    icon: LayoutDashboard, 
-    label: "Dashboard", 
+  {
+    icon: LayoutDashboard,
+    label: "Dashboard",
     href: "/",
-    description: "Vista general"
+    description: "Vista general",
   },
-  { 
-    icon: FileText, 
-    label: "Reportes", 
+  {
+    icon: FileText,
+    label: "Reportes",
     href: "/reports",
-    description: "Documentos generados"
+    description: "Documentos generados",
   },
-  { 
-    icon: Upload, 
-    label: "Cargar datos", 
+  {
+    icon: Upload,
+    label: "Cargar datos",
     href: "/data",
-    description: "Subir archivos Excel"
+    description: "Subir archivos Excel",
   },
-  { 
-    icon: BarChart3, 
-    label: "Analíticas", 
+  {
+    icon: BarChart3,
+    label: "Analíticas",
     href: "/analytics",
-    description: "Gráficos y métricas"
+    description: "Gráficos y métricas",
   },
-  { 
-    icon: ClipboardCheck, 
-    label: "Auditoría", 
+  {
+    icon: ClipboardCheck,
+    label: "Auditoría",
     href: "/audit",
-    description: "Historial de cambios"
+    description: "Historial de cambios",
   },
 ];
 
@@ -60,7 +60,7 @@ export const Sidebar = () => {
   return (
     <aside className="w-56 h-screen bg-zinc-950 border-r border-zinc-800 flex flex-col">
       {/* Logo - Clickable to Dashboard */}
-      <Link 
+      <Link
         href="/"
         className="h-14 flex items-center px-4 border-b border-zinc-800 hover:bg-zinc-900/50 transition-colors group"
       >
@@ -89,7 +89,7 @@ export const Sidebar = () => {
               Navegación
             </span>
           </div>
-          
+
           <div className="space-y-0.5">
             {menuItems.map((item) => {
               const isActive = pathname === item.href;
@@ -99,15 +99,18 @@ export const Sidebar = () => {
                   href={item.href}
                   className={`
                     flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-all duration-200 group relative
-                    ${isActive 
-                      ? 'bg-yellow-500 text-black' 
-                      : 'text-zinc-400 hover:bg-zinc-800/70 hover:text-white'
+                    ${
+                      isActive
+                        ? "bg-yellow-500 text-black"
+                        : "text-zinc-400 hover:bg-zinc-800/70 hover:text-white"
                     }
                   `}
                 >
                   <item.icon
                     size={16}
-                    className={`shrink-0 ${isActive ? 'text-black' : 'group-hover:text-yellow-500'} transition-colors`}
+                    className={`shrink-0 ${
+                      isActive ? "text-black" : "group-hover:text-yellow-500"
+                    } transition-colors`}
                   />
                   <span className="text-[13px] font-medium">{item.label}</span>
                 </Link>
@@ -128,22 +131,27 @@ export const Sidebar = () => {
                 Archivo activo
               </span>
             </div>
-            
+
             <div className="relative">
               <button
                 onClick={() => setIsFileMenuOpen(!isFileMenuOpen)}
                 className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition-colors text-left"
               >
-                <FileSpreadsheet size={14} className="text-emerald-500 shrink-0" />
+                <FileSpreadsheet
+                  size={14}
+                  className="text-emerald-500 shrink-0"
+                />
                 <span className="flex-1 text-xs text-white truncate">
                   {activeFile?.name || "Seleccionar archivo"}
                 </span>
-                <ChevronDown 
-                  size={14} 
-                  className={`text-zinc-500 transition-transform ${isFileMenuOpen ? 'rotate-180' : ''}`} 
+                <ChevronDown
+                  size={14}
+                  className={`text-zinc-500 transition-transform ${
+                    isFileMenuOpen ? "rotate-180" : ""
+                  }`}
                 />
               </button>
-              
+
               {isFileMenuOpen && (
                 <div className="absolute top-full left-0 right-0 mt-1 bg-zinc-900 border border-zinc-800 rounded-lg shadow-xl z-50 overflow-hidden">
                   <div className="max-h-40 overflow-y-auto">
@@ -155,13 +163,21 @@ export const Sidebar = () => {
                           setIsFileMenuOpen(false);
                         }}
                         className={`w-full flex items-center gap-2 px-2.5 py-2 text-left hover:bg-zinc-800 transition-colors ${
-                          activeFile?.id === file.id ? 'bg-zinc-800' : ''
+                          activeFile?.id === file.id ? "bg-zinc-800" : ""
                         }`}
                       >
-                        <FileSpreadsheet size={12} className="text-zinc-500 shrink-0" />
-                        <span className="flex-1 text-xs text-zinc-300 truncate">{file.name}</span>
+                        <FileSpreadsheet
+                          size={12}
+                          className="text-zinc-500 shrink-0"
+                        />
+                        <span className="flex-1 text-xs text-zinc-300 truncate">
+                          {file.name}
+                        </span>
                         {activeFile?.id === file.id && (
-                          <Check size={12} className="text-emerald-500 shrink-0" />
+                          <Check
+                            size={12}
+                            className="text-emerald-500 shrink-0"
+                          />
                         )}
                       </button>
                     ))}
@@ -183,18 +199,22 @@ export const Sidebar = () => {
               Sistema
             </span>
           </div>
-          
+
           <Link
             href="/settings"
             className={`
               flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-all duration-200 group
-              ${pathname === '/settings'
-                ? 'bg-zinc-800 text-white' 
-                : 'text-zinc-400 hover:bg-zinc-800/70 hover:text-white'
+              ${
+                pathname === "/settings"
+                  ? "bg-zinc-800 text-white"
+                  : "text-zinc-400 hover:bg-zinc-800/70 hover:text-white"
               }
             `}
           >
-            <Settings size={16} className="group-hover:rotate-90 transition-transform duration-300" />
+            <Settings
+              size={16}
+              className="group-hover:rotate-90 transition-transform duration-300"
+            />
             <span className="text-[13px] font-medium">Configuración</span>
           </Link>
         </div>
@@ -209,7 +229,7 @@ export const Sidebar = () => {
           <div className="flex-1 min-w-0">
             <p className="text-xs font-medium text-white truncate">John Doe</p>
           </div>
-          <button 
+          <button
             className="p-1.5 text-zinc-500 hover:text-red-400 hover:bg-red-400/10 rounded transition-all"
             title="Cerrar sesión"
           >

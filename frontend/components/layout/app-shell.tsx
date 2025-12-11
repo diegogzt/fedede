@@ -15,9 +15,7 @@ export function AppShell({ children }: AppShellProps) {
         <Sidebar />
         <div className="flex-1 flex flex-col h-screen overflow-hidden">
           <Topbar />
-          <main className="flex-1 overflow-y-auto">
-            {children}
-          </main>
+          <main className="flex-1 overflow-y-auto">{children}</main>
         </div>
       </div>
     </AppProvider>

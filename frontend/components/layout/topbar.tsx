@@ -1,7 +1,14 @@
 ﻿"use client";
 
 import React, { useState, useEffect } from "react";
-import { Bell, Search, HelpCircle, Calendar, Home, ChevronRight } from "lucide-react";
+import {
+  Bell,
+  Search,
+  HelpCircle,
+  Calendar,
+  Home,
+  ChevronRight,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -14,13 +21,15 @@ export const Topbar = () => {
   useEffect(() => {
     const now = new Date();
     setDateTime(now.toISOString());
-    setCurrentDate(now.toLocaleDateString("es-ES", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    }));
+    setCurrentDate(
+      now.toLocaleDateString("es-ES", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    );
   }, []);
-  
+
   // Generate breadcrumb based on pathname
   const getBreadcrumb = () => {
     if (pathname === "/") return [{ label: "Dashboard", href: "/" }];
@@ -29,8 +38,8 @@ export const Topbar = () => {
       { label: "Dashboard", href: "/" },
       ...parts.map((part, index) => ({
         label: part.charAt(0).toUpperCase() + part.slice(1),
-        href: "/" + parts.slice(0, index + 1).join("/")
-      }))
+        href: "/" + parts.slice(0, index + 1).join("/"),
+      })),
     ];
   };
 
@@ -42,8 +51,8 @@ export const Topbar = () => {
       <div className="flex items-center gap-3">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1.5" aria-label="Breadcrumb">
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             className="p-1 text-zinc-500 hover:text-yellow-500 hover:bg-zinc-800 rounded transition-colors"
             title="Ir al inicio"
           >
@@ -57,7 +66,7 @@ export const Topbar = () => {
                   {item.label}
                 </span>
               ) : (
-                <Link 
+                <Link
                   href={item.href}
                   className="text-xs text-zinc-500 hover:text-white transition-colors"
                 >
@@ -74,11 +83,7 @@ export const Topbar = () => {
         {/* Date Badge */}
         <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 bg-zinc-900 px-2 py-1 rounded border border-zinc-800">
           <Calendar size={12} className="text-zinc-600" />
-          {currentDate && (
-            <time dateTime={dateTime}>
-              {currentDate}
-            </time>
-          )}
+          {currentDate && <time dateTime={dateTime}>{currentDate}</time>}
         </div>
       </div>
 
@@ -89,7 +94,10 @@ export const Topbar = () => {
           <label htmlFor="search-input" className="sr-only">
             Buscar reportes y documentos
           </label>
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-500 w-3.5 h-3.5" aria-hidden="true" />
+          <Search
+            className="absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-500 w-3.5 h-3.5"
+            aria-hidden="true"
+          />
           <input
             id="search-input"
             type="search"
@@ -100,7 +108,7 @@ export const Topbar = () => {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-0.5">
-          <button 
+          <button
             className="p-1.5 text-zinc-500 hover:text-white hover:bg-zinc-800 rounded transition-all relative"
             title="Ver notificaciones"
             aria-label="Notificaciones (3 sin leer)"
@@ -108,7 +116,7 @@ export const Topbar = () => {
             <Bell size={16} />
             <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
           </button>
-          <button 
+          <button
             className="p-1.5 text-zinc-500 hover:text-white hover:bg-zinc-800 rounded transition-all"
             title="Ayuda y documentación"
             aria-label="Abrir ayuda"

@@ -1,4 +1,4 @@
-﻿'use client';
+﻿"use client";
 
 import React, { useEffect } from "react";
 import {
@@ -13,9 +13,14 @@ import {
   FileSpreadsheet,
   Clock,
   AlertTriangle,
-  Sparkles
+  Sparkles,
 } from "lucide-react";
-import { useApp, useActiveFile, useFiles, documentToFileData } from "@/lib/store";
+import {
+  useApp,
+  useActiveFile,
+  useFiles,
+  documentToFileData,
+} from "@/lib/store";
 import { getHistory, formatDate, ProcessedDocument } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 
@@ -31,15 +36,19 @@ export default function Dashboard() {
         setLoading(true);
         try {
           const documents = await getHistory();
-          const fileDataList = documents.map((doc: ProcessedDocument) => documentToFileData(doc));
+          const fileDataList = documents.map((doc: ProcessedDocument) =>
+            documentToFileData(doc)
+          );
           setFiles(fileDataList);
-          
+
           // Auto-seleccionar el más reciente si no hay activo
           if (fileDataList.length > 0 && !activeFile) {
             setActiveFile(fileDataList[0]);
           }
         } catch (err) {
-          setError(err instanceof Error ? err.message : 'Error al cargar datos');
+          setError(
+            err instanceof Error ? err.message : "Error al cargar datos"
+          );
         } finally {
           setLoading(false);
         }
@@ -50,41 +59,54 @@ export default function Dashboard() {
   }, []);
 
   // Calcular estadísticas
-  const totalStats = files.reduce((acc, file) => {
-    if (file.status === 'success') {
-      acc.totalQuestions += file.questions_generated || 0;
-      acc.highPriority += file.high_priority_count || 0;
-      acc.mediumPriority += file.medium_priority_count || 0;
-      acc.lowPriority += file.low_priority_count || 0;
-      acc.successCount += 1;
+  const totalStats = files.reduce(
+    (acc, file) => {
+      if (file.status === "success") {
+        acc.totalQuestions += file.questions_generated || 0;
+        acc.highPriority += file.high_priority_count || 0;
+        acc.mediumPriority += file.medium_priority_count || 0;
+        acc.lowPriority += file.low_priority_count || 0;
+        acc.successCount += 1;
+      }
+      return acc;
+    },
+    {
+      totalQuestions: 0,
+      highPriority: 0,
+      mediumPriority: 0,
+      lowPriority: 0,
+      successCount: 0,
     }
-    return acc;
-  }, {
-    totalQuestions: 0,
-    highPriority: 0,
-    mediumPriority: 0,
-    lowPriority: 0,
-    successCount: 0
-  });
+  );
 
   // Stats para el archivo activo o totales
-  const currentStats = activeFile && activeFile.status === 'success' ? {
-    questions: activeFile.questions_generated || 0,
-    high: activeFile.high_priority_count || 0,
-    medium: activeFile.medium_priority_count || 0,
-    low: activeFile.low_priority_count || 0,
-  } : null;
+  const currentStats =
+    activeFile && activeFile.status === "success"
+      ? {
+          questions: activeFile.questions_generated || 0,
+          high: activeFile.high_priority_count || 0,
+          medium: activeFile.medium_priority_count || 0,
+          low: activeFile.low_priority_count || 0,
+        }
+      : null;
 
-  const questionsCount = currentStats ? currentStats.questions : totalStats.totalQuestions;
+  const questionsCount = currentStats
+    ? currentStats.questions
+    : totalStats.totalQuestions;
   const highCount = currentStats ? currentStats.high : totalStats.highPriority;
-  const mediumCount = currentStats ? currentStats.medium : totalStats.mediumPriority;
+  const mediumCount = currentStats
+    ? currentStats.medium
+    : totalStats.mediumPriority;
   const lowCount = currentStats ? currentStats.low : totalStats.lowPriority;
 
   const stats = [
     {
       label: "Reportes procesados",
       value: files.length.toString(),
-      change: totalStats.successCount > 0 ? `${totalStats.successCount} exitosos` : "0 exitosos",
+      change:
+        totalStats.successCount > 0
+          ? `${totalStats.successCount} exitosos`
+          : "0 exitosos",
       trend: "up",
       icon: FileText,
     },
@@ -101,7 +123,7 @@ export default function Dashboard() {
       change: "requieren atención",
       trend: highCount > 0 ? "down" : "up",
       icon: AlertTriangle,
-      color: "red"
+      color: "red",
     },
     {
       label: "Media + Baja",
@@ -109,7 +131,7 @@ export default function Dashboard() {
       change: "de seguimiento",
       trend: "up",
       icon: TrendingUp,
-      color: "green"
+      color: "green",
     },
   ];
 
@@ -121,12 +143,15 @@ export default function Dashboard() {
           <div className="w-20 h-20 bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-6">
             <Upload className="w-10 h-10 text-zinc-600" />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2">Bienvenido a NEXUS Finance AI</h2>
+          <h2 className="text-2xl font-bold text-white mb-2">
+            Bienvenido a NEXUS Finance AI
+          </h2>
           <p className="text-zinc-400 mb-8 max-w-md mx-auto">
-            Sube tu primer archivo financiero (Excel o CSV) para generar análisis Q&A automatizados con IA
+            Sube tu primer archivo financiero (Excel o CSV) para generar
+            análisis Q&A automatizados con IA
           </p>
           <Button
-            onClick={() => window.location.href = '/data'}
+            onClick={() => (window.location.href = "/data")}
             className="bg-yellow-500 text-black hover:bg-yellow-400 px-8 py-3"
           >
             <Upload className="w-4 h-4 mr-2" />
@@ -147,24 +172,28 @@ export default function Dashboard() {
               <FileSpreadsheet className="w-5 h-5 text-yellow-500" />
             </div>
             <div>
-              <h2 className="text-white font-semibold">{activeFile.original_filename}</h2>
+              <h2 className="text-white font-semibold">
+                {activeFile.original_filename}
+              </h2>
               <p className="text-xs text-zinc-500">
                 Procesado: {formatDate(activeFile.processed_at)}
               </p>
             </div>
           </div>
-          
+
           {files.length > 1 && (
             <select
               value={activeFile.id}
               onChange={(e) => {
-                const file = files.find(f => f.id === parseInt(e.target.value));
+                const file = files.find(
+                  (f) => f.id === parseInt(e.target.value)
+                );
                 if (file) setActiveFile(file);
               }}
               className="bg-zinc-800 border border-zinc-700 text-zinc-300 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-yellow-500"
               aria-label="Seleccionar archivo"
             >
-              {files.map(file => (
+              {files.map((file) => (
                 <option key={file.id} value={file.id}>
                   {file.original_filename}
                 </option>
@@ -183,20 +212,42 @@ export default function Dashboard() {
               className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 hover:border-yellow-500/30 transition-all duration-300 group"
             >
               <div className="flex items-start justify-between mb-3">
-                <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors
-                  ${stat.color === 'red' ? 'bg-red-500/10' : stat.color === 'green' ? 'bg-green-500/10' : 'bg-zinc-800 group-hover:bg-yellow-500/10'}`}>
-                  <stat.icon size={18} className={
-                    stat.color === 'red' ? 'text-red-500' : 
-                    stat.color === 'green' ? 'text-green-500' : 
-                    'text-yellow-500'
-                  } />
+                <div
+                  className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors
+                  ${
+                    stat.color === "red"
+                      ? "bg-red-500/10"
+                      : stat.color === "green"
+                      ? "bg-green-500/10"
+                      : "bg-zinc-800 group-hover:bg-yellow-500/10"
+                  }`}
+                >
+                  <stat.icon
+                    size={18}
+                    className={
+                      stat.color === "red"
+                        ? "text-red-500"
+                        : stat.color === "green"
+                        ? "text-green-500"
+                        : "text-yellow-500"
+                    }
+                  />
                 </div>
-                <div className={`flex items-center gap-0.5 text-[11px] font-medium px-2 py-0.5 rounded-full
-                  ${stat.trend === 'up' ? 'text-emerald-400 bg-emerald-400/10' : 
-                    stat.trend === 'down' ? 'text-red-400 bg-red-400/10' : 
-                    'text-zinc-400 bg-zinc-700'}`}>
-                  {stat.trend === 'up' ? <ArrowUpRight size={10} /> : 
-                   stat.trend === 'down' ? <ArrowDownRight size={10} /> : null}
+                <div
+                  className={`flex items-center gap-0.5 text-[11px] font-medium px-2 py-0.5 rounded-full
+                  ${
+                    stat.trend === "up"
+                      ? "text-emerald-400 bg-emerald-400/10"
+                      : stat.trend === "down"
+                      ? "text-red-400 bg-red-400/10"
+                      : "text-zinc-400 bg-zinc-700"
+                  }`}
+                >
+                  {stat.trend === "up" ? (
+                    <ArrowUpRight size={10} />
+                  ) : stat.trend === "down" ? (
+                    <ArrowDownRight size={10} />
+                  ) : null}
                   {stat.change}
                 </div>
               </div>
@@ -205,9 +256,7 @@ export default function Dashboard() {
                 <p className="text-zinc-500 text-xs font-medium mb-0.5">
                   {stat.label}
                 </p>
-                <p className="text-xl font-bold text-white">
-                  {stat.value}
-                </p>
+                <p className="text-xl font-bold text-white">{stat.value}</p>
               </div>
             </article>
           ))}
@@ -224,33 +273,41 @@ export default function Dashboard() {
                 <BarChart3 size={14} className="text-yellow-500" />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-white">Distribución de Prioridades</h3>
+                <h3 className="text-sm font-semibold text-white">
+                  Distribución de Prioridades
+                </h3>
                 <p className="text-[10px] text-zinc-500">
-                  {activeFile ? activeFile.original_filename : 'Todos los reportes'}
+                  {activeFile
+                    ? activeFile.original_filename
+                    : "Todos los reportes"}
                 </p>
               </div>
             </div>
           </div>
-          
+
           <div className="p-4">
             {questionsCount > 0 ? (
               <div className="space-y-4">
                 {/* Barra visual */}
                 <div className="w-full h-4 rounded-full overflow-hidden flex bg-zinc-800">
                   {highCount > 0 && (
-                    <div 
+                    <div
                       className="bg-red-500 h-full"
-                      style={{ width: `${(highCount / questionsCount) * 100}%` }}
+                      style={{
+                        width: `${(highCount / questionsCount) * 100}%`,
+                      }}
                     />
                   )}
                   {mediumCount > 0 && (
-                    <div 
+                    <div
                       className="bg-yellow-500 h-full"
-                      style={{ width: `${(mediumCount / questionsCount) * 100}%` }}
+                      style={{
+                        width: `${(mediumCount / questionsCount) * 100}%`,
+                      }}
                     />
                   )}
                   {lowCount > 0 && (
-                    <div 
+                    <div
                       className="bg-green-500 h-full"
                       style={{ width: `${(lowCount / questionsCount) * 100}%` }}
                     />
@@ -264,15 +321,23 @@ export default function Dashboard() {
                     <p className="text-2xl font-bold text-white">{highCount}</p>
                     <p className="text-xs text-zinc-400">Alta Prioridad</p>
                     <p className="text-[10px] text-red-400 mt-1">
-                      {questionsCount > 0 ? `${((highCount / questionsCount) * 100).toFixed(0)}%` : '0%'}
+                      {questionsCount > 0
+                        ? `${((highCount / questionsCount) * 100).toFixed(0)}%`
+                        : "0%"}
                     </p>
                   </div>
                   <div className="text-center p-4 bg-zinc-800/50 rounded-lg border border-yellow-500/20">
                     <div className="w-3 h-3 bg-yellow-500 rounded-full mx-auto mb-2" />
-                    <p className="text-2xl font-bold text-white">{mediumCount}</p>
+                    <p className="text-2xl font-bold text-white">
+                      {mediumCount}
+                    </p>
                     <p className="text-xs text-zinc-400">Media Prioridad</p>
                     <p className="text-[10px] text-yellow-400 mt-1">
-                      {questionsCount > 0 ? `${((mediumCount / questionsCount) * 100).toFixed(0)}%` : '0%'}
+                      {questionsCount > 0
+                        ? `${((mediumCount / questionsCount) * 100).toFixed(
+                            0
+                          )}%`
+                        : "0%"}
                     </p>
                   </div>
                   <div className="text-center p-4 bg-zinc-800/50 rounded-lg border border-green-500/20">
@@ -280,7 +345,9 @@ export default function Dashboard() {
                     <p className="text-2xl font-bold text-white">{lowCount}</p>
                     <p className="text-xs text-zinc-400">Baja Prioridad</p>
                     <p className="text-[10px] text-green-400 mt-1">
-                      {questionsCount > 0 ? `${((lowCount / questionsCount) * 100).toFixed(0)}%` : '0%'}
+                      {questionsCount > 0
+                        ? `${((lowCount / questionsCount) * 100).toFixed(0)}%`
+                        : "0%"}
                     </p>
                   </div>
                 </div>
@@ -301,51 +368,67 @@ export default function Dashboard() {
               <div className="w-7 h-7 bg-zinc-800 rounded flex items-center justify-center">
                 <Clock size={14} className="text-yellow-500" />
               </div>
-              <h3 className="text-sm font-semibold text-white">Actividad reciente</h3>
+              <h3 className="text-sm font-semibold text-white">
+                Actividad reciente
+              </h3>
             </div>
           </div>
-          
+
           <div className="divide-y divide-zinc-800">
             {files.slice(0, 5).map((file) => (
               <button
                 key={file.id}
                 onClick={() => setActiveFile(file)}
                 className={`w-full flex items-center gap-3 p-3 hover:bg-zinc-800/50 transition-colors text-left
-                  ${activeFile?.id === file.id ? 'bg-yellow-500/5 border-l-2 border-yellow-500' : ''}`}
+                  ${
+                    activeFile?.id === file.id
+                      ? "bg-yellow-500/5 border-l-2 border-yellow-500"
+                      : ""
+                  }`}
               >
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center
-                  ${file.status === 'success' ? 'bg-green-500/10' : 
-                    file.status === 'error' ? 'bg-red-500/10' : 'bg-yellow-500/10'}`}>
-                  {file.status === 'success' ? (
+                <div
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center
+                  ${
+                    file.status === "success"
+                      ? "bg-green-500/10"
+                      : file.status === "error"
+                      ? "bg-red-500/10"
+                      : "bg-yellow-500/10"
+                  }`}
+                >
+                  {file.status === "success" ? (
                     <CheckCircle size={16} className="text-green-500" />
-                  ) : file.status === 'error' ? (
+                  ) : file.status === "error" ? (
                     <AlertCircle size={16} className="text-red-500" />
                   ) : (
                     <Clock size={16} className="text-yellow-500" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-white truncate">{file.original_filename}</p>
+                  <p className="text-sm text-white truncate">
+                    {file.original_filename}
+                  </p>
                   <p className="text-[10px] text-zinc-500">
-                    {file.questions_generated || 0} preguntas • {formatDate(file.processed_at)}
+                    {file.questions_generated || 0} preguntas •{" "}
+                    {formatDate(file.processed_at)}
                   </p>
                 </div>
               </button>
             ))}
-            
+
             {files.length === 0 && (
               <div className="p-4 text-center text-zinc-500 text-sm">
                 No hay actividad reciente
               </div>
             )}
           </div>
-          
+
           {files.length > 5 && (
             <div className="p-2 border-t border-zinc-800">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => window.location.href = '/reports'}
+                onClick={() => (window.location.href = "/reports")}
                 className="w-full border-zinc-700 text-zinc-400 hover:text-white text-xs"
               >
                 Ver todos los reportes
@@ -358,7 +441,7 @@ export default function Dashboard() {
       {/* Quick Actions */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <button
-          onClick={() => window.location.href = '/data'}
+          onClick={() => (window.location.href = "/data")}
           className="flex items-center gap-3 p-4 bg-zinc-900 border border-zinc-800 rounded-xl hover:border-yellow-500/30 transition-all group"
         >
           <div className="w-10 h-10 bg-yellow-500/10 rounded-lg flex items-center justify-center group-hover:bg-yellow-500/20 transition-colors">
@@ -369,9 +452,9 @@ export default function Dashboard() {
             <p className="text-xs text-zinc-500">Procesar nuevo Excel/CSV</p>
           </div>
         </button>
-        
+
         <button
-          onClick={() => window.location.href = '/reports'}
+          onClick={() => (window.location.href = "/reports")}
           className="flex items-center gap-3 p-4 bg-zinc-900 border border-zinc-800 rounded-xl hover:border-yellow-500/30 transition-all group"
         >
           <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center group-hover:bg-blue-500/20 transition-colors">
@@ -382,9 +465,9 @@ export default function Dashboard() {
             <p className="text-xs text-zinc-500">Descargar y gestionar</p>
           </div>
         </button>
-        
+
         <button
-          onClick={() => window.location.href = '/analytics'}
+          onClick={() => (window.location.href = "/analytics")}
           className="flex items-center gap-3 p-4 bg-zinc-900 border border-zinc-800 rounded-xl hover:border-yellow-500/30 transition-all group"
         >
           <div className="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center group-hover:bg-purple-500/20 transition-colors">
