@@ -40,14 +40,14 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({ documents }) => {
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-[var(--border)] bg-white shadow-sm">
+    <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-sm">
       <table className="w-full text-sm text-left">
-        <thead className="bg-gray-50 text-xs uppercase text-gray-500 font-semibold border-b border-[var(--border)]">
+        <thead className="bg-gray-50 text-[10px] uppercase text-gray-500 font-semibold border-b border-[var(--border)]">
           <tr>
-            <th className="px-6 py-4">Documento</th>
-            <th className="px-6 py-4">Fecha</th>
-            <th className="px-6 py-4">Estado</th>
-            <th className="px-6 py-4 text-right">Acciones</th>
+            <th className="px-4 py-3">Documento</th>
+            <th className="px-4 py-3">Fecha</th>
+            <th className="px-4 py-3">Estado</th>
+            <th className="px-4 py-3 text-right">Acciones</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
@@ -56,21 +56,21 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({ documents }) => {
               key={doc.id}
               className="hover:bg-blue-50/30 transition-colors group"
             >
-              <td className="px-6 py-4 font-medium text-[var(--foreground)] flex items-center gap-3">
-                <div className="p-2 bg-blue-50 rounded text-[var(--primary)] group-hover:bg-[var(--primary)] group-hover:text-white transition-colors">
-                  <FileText size={16} />
+              <td className="px-4 py-3 font-medium text-[var(--foreground)] flex items-center gap-3">
+                <div className="p-1.5 bg-blue-50 rounded text-[var(--primary)] group-hover:bg-[var(--primary)] group-hover:text-white transition-colors">
+                  <FileText size={14} />
                 </div>
                 {doc.filename}
               </td>
-              <td className="px-6 py-4 text-[var(--muted)]">
+              <td className="px-4 py-3 text-[var(--muted)]">
                 {formatDate(doc.processed_at)}
               </td>
-              <td className="px-6 py-4">
+              <td className="px-4 py-3">
                 <Badge variant={doc.status === "success" ? "success" : "error"}>
                   {doc.status}
                 </Badge>
               </td>
-              <td className="px-6 py-4 text-right">
+              <td className="px-4 py-3 text-right">
                 <button className="text-[var(--primary)] hover:text-[var(--secondary)] font-medium text-xs flex items-center justify-end gap-1 ml-auto transition-colors">
                   <Download size={14} />
                   Descargar

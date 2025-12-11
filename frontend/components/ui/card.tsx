@@ -17,7 +17,7 @@ export const Card: React.FC<CardProps> = ({
 
   return (
     <div
-      className={`bg-[var(--surface)] rounded-lg shadow-md border border-[var(--border)] transition-all duration-200 ${hoverStyles} ${className}`}
+      className={`bg-[var(--surface)] rounded-xl shadow-md border border-[var(--border)] transition-all duration-200 ${hoverStyles} ${className}`}
     >
       {children}
     </div>
@@ -34,7 +34,7 @@ export const CardHeader: React.FC<CardHeaderProps> = ({
   className = "",
 }) => {
   return (
-    <div className={`p-6 border-b border-[var(--border)] ${className}`}>
+    <div className={`p-5 border-b border-[var(--border)] ${className}`}>
       {children}
     </div>
   );
@@ -50,7 +50,7 @@ export const CardTitle: React.FC<CardTitleProps> = ({
   className = "",
 }) => {
   return (
-    <h3 className={`text-xl font-bold text-[var(--foreground)] ${className}`}>
+    <h3 className={`text-lg font-bold text-[var(--foreground)] ${className}`}>
       {children}
     </h3>
   );
@@ -66,7 +66,7 @@ export const CardDescription: React.FC<CardDescriptionProps> = ({
   className = "",
 }) => {
   return (
-    <p className={`text-sm text-[var(--muted)] mt-1 ${className}`}>
+    <p className={`text-xs text-[var(--muted)] mt-1 ${className}`}>
       {children}
     </p>
   );
@@ -81,7 +81,7 @@ export const CardContent: React.FC<CardContentProps> = ({
   children,
   className = "",
 }) => {
-  return <div className={`p-6 ${className}`}>{children}</div>;
+  return <div className={`p-5 ${className}`}>{children}</div>;
 };
 
 interface CardFooterProps {
@@ -95,7 +95,7 @@ export const CardFooter: React.FC<CardFooterProps> = ({
 }) => {
   return (
     <div
-      className={`p-6 border-t border-[var(--border)] bg-[var(--background)] rounded-b-lg ${className}`}
+      className={`p-5 border-t border-[var(--border)] bg-[var(--background)] rounded-b-xl ${className}`}
     >
       {children}
     </div>

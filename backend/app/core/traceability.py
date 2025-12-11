@@ -50,3 +50,15 @@ def get_history() -> List[Dict[str, Any]]:
     history = [dict(row) for row in rows]
     conn.close()
     return history
+
+def delete_document(doc_id: int) -> bool:
+    """Elimina un documento del historial por su ID."""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    
+    cursor.execute('DELETE FROM processed_documents WHERE id = ?', (doc_id,))
+    deleted = cursor.rowcount > 0
+    
+    conn.commit()
+    conn.close()
+    return deleted

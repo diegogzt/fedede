@@ -6,11 +6,12 @@ import os
 from pathlib import Path
 import logging
 from typing import List
+from datetime import datetime
 
 from app.processors.excel_reader import ExcelReader
 from app.processors.qa_generator import QAGenerator
 from app.processors.models import BalanceSheet
-from app.core.traceability import init_db, log_processing, get_history
+from app.core.traceability import init_db, log_processing, get_history, delete_document
 
 # Configuración de logging
 logging.basicConfig(level=logging.INFO)
@@ -55,55 +56,53 @@ async def process_document(file: UploadFile = File(...)):
         logger.info(f"Archivo recibido: {file.filename}")
         log_processing(file.filename, "started")
 
-        # 2. Procesar Excel
-        reader = ExcelReader()
-        df = reader.read_excel(str(file_path))
+        # 2. Leer Excel y convertir a BalanceSheet
+        reader = ExcelReader(str(file_path))
+        balance = reader.to_balance_sheet()
         
-        # 3. Generar Balance Sheet (Simplificado para demo)
-        # Nota: Aquí deberíamos usar la lógica completa de DataNormalizer
-        # Para este MVP, asumimos que ExcelReader devuelve un DataFrame procesable
-        
-        # TODO: Integrar DataNormalizer correctamente
-        # Por ahora, instanciamos QAGenerator que internamente usa DataNormalizer
-        
+        logger.info(f"Balance cargado: {len(balance.accounts)} cuentas")
+
+        # 3. Generar Reporte Q&A
         generator = QAGenerator()
-        
-        # Simulación de carga de datos al modelo BalanceSheet
-        # En una implementación real, DataNormalizer haría esto
-        balance = BalanceSheet() 
-        # ... lógica de mapeo DF -> BalanceSheet ...
-        
-        # 4. Generar Reporte Q&A
-        # Como el mapeo DF -> BalanceSheet es complejo, por ahora usaremos
-        # el flujo existente si es posible, o adaptaremos el ExcelReader
-        
-        # ALERTA: El código original de ExcelReader devolvía un DataFrame.
-        # Necesitamos convertir ese DataFrame a la estructura BalanceSheet
-        # que espera QAGenerator.
-        
-        # Solución temporal: Usar el DataNormalizer para procesar el archivo
-        # Asumiendo que DataNormalizer tiene un método `process_file` o similar
-        # Si no, tendremos que invocarlo manualmente.
-        
-        normalized_data = generator.normalizer.normalize_data(df)
-        balance = generator.analyzer.create_balance_sheet(normalized_data)
-        
         report = generator.generate_report(balance)
         
-        # 5. Exportar a Excel
-        output_filename = f"QA_{file.filename}"
+        logger.info(f"Reporte generado: {len(report.items)} items")
+
+        # 4. Exportar a Excel
+        output_filename = f"QA_{Path(file.filename).stem}.xlsx"
         output_path = OUTPUT_DIR / output_filename
         
-        # Usar ExcelExporter si está disponible, sino CSV
         if generator.export_to_excel(report, str(output_path)):
-             log_processing(file.filename, "success", str(output_path))
-             return {"status": "success", "download_url": f"/download/{output_filename}"}
+            log_processing(file.filename, "success", str(output_path))
+            return {
+                "success": True,
+                "message": f"Procesado exitosamente: {len(report.items)} items generados",
+                "download_url": f"/download/{output_filename}",
+                "document": {
+                    "id": str(hash(file.filename)),
+                    "filename": file.filename,
+                    "processed_at": datetime.now().isoformat(),
+                    "status": "success",
+                    "output_file": output_filename,
+                    "stats": {
+                        "total_accounts": len(balance.accounts),
+                        "total_items": len(report.items),
+                        "high_priority": sum(1 for i in report.items if i.priority.name == 'ALTA'),
+                        "medium_priority": sum(1 for i in report.items if i.priority.name == 'MEDIA'),
+                        "low_priority": sum(1 for i in report.items if i.priority.name == 'BAJA'),
+                    }
+                }
+            }
         else:
-             # Fallback CSV
-             output_csv = output_path.with_suffix('.csv')
-             generator.export_to_csv(report, str(output_csv))
-             log_processing(file.filename, "success", str(output_csv))
-             return {"status": "success", "download_url": f"/download/{output_csv.name}"}
+            # Fallback CSV
+            output_csv = output_path.with_suffix('.csv')
+            generator.export_to_csv(report, str(output_csv))
+            log_processing(file.filename, "success", str(output_csv))
+            return {
+                "success": True,
+                "message": f"Procesado exitosamente (CSV): {len(report.items)} items",
+                "download_url": f"/download/{output_csv.name}"
+            }
 
     except Exception as e:
         logger.error(f"Error procesando documento: {str(e)}")
@@ -116,6 +115,14 @@ async def download_file(filename: str):
     if file_path.exists():
         return FileResponse(path=file_path, filename=filename)
     raise HTTPException(status_code=404, detail="File not found")
+
+@app.delete("/history/{doc_id}")
+async def delete_history_item(doc_id: int):
+    """Elimina un documento del historial."""
+    success = delete_document(doc_id)
+    if success:
+        return {"success": True, "message": "Documento eliminado"}
+    raise HTTPException(status_code=404, detail="Documento no encontrado")
 
 if __name__ == "__main__":
     import uvicorn
