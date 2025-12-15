@@ -67,6 +67,15 @@ data/rag_db/
 data/output/
 *.sqlite3
 
+# Artefactos runtime / salidas generadas
+.uvicorn.pid
+.uvicorn.log
+backend/data/output/
+backend/data/reports/
+output/
+data/traceability.db
+backend/data/traceability.db
+
 # Node.js
 node_modules/
 .next/

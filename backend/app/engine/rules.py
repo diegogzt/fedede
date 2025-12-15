@@ -14,6 +14,8 @@ from typing import Dict, Any, Optional, List, Tuple
 import re
 from dataclasses import dataclass
 
+from app.config.settings import get_settings
+
 
 @dataclass
 class QuestionRule:
@@ -42,8 +44,9 @@ class RuleEngine:
     """
     
     def __init__(self):
-        self.variation_threshold_percent = 10.0
-        self.variation_threshold_absolute = 1000.0
+        settings = get_settings()
+        self.variation_threshold_percent = float(settings.report.percentage_threshold)
+        self.variation_threshold_absolute = float(settings.report.materiality_threshold)
         
         # Patrones de exclusión (no generar preguntas)
         self.exclusion_patterns = [
@@ -995,6 +998,118 @@ class RuleEngine:
         # Ordenar por prioridad (mayor primero) y devolver la más específica
         matching_rules.sort(key=lambda r: r.priority, reverse=True)
         return matching_rules[0]
+
+    def _match_rule_with_details(
+        self,
+        account_code: str,
+        account_name: str,
+    ) -> Optional[Tuple[QuestionRule, Optional[str], Optional[str]]]:
+        """Devuelve la regla y detalles de match (prefijo y patrón)."""
+        matching: List[Tuple[QuestionRule, Optional[str], Optional[str]]] = []
+
+        for rule in self.rules:
+            matched_prefix: Optional[str] = None
+            matched_pattern: Optional[str] = None
+
+            for prefix in rule.code_prefixes:
+                if account_code.startswith(prefix):
+                    matched_prefix = prefix
+                    break
+
+            if not matched_prefix:
+                continue
+
+            if not rule.patterns:
+                matching.append((rule, matched_prefix, None))
+                continue
+
+            for pattern in rule.patterns:
+                if re.search(pattern, account_name.lower()):
+                    matched_pattern = pattern
+                    break
+
+            if matched_pattern:
+                matching.append((rule, matched_prefix, matched_pattern))
+
+        if not matching:
+            return None
+
+        matching.sort(key=lambda t: t[0].priority, reverse=True)
+        return matching[0]
+
+    def generate_question_with_reason(self, context: Dict[str, Any]) -> Tuple[Optional[str], Optional[str]]:
+        """Genera pregunta y razón (regla aplicada) basada en el contexto."""
+        account_code = str(context.get("account_code", ""))
+        account_name = context.get("account_name", "")
+        variation_percent = context.get("variation_percent", 0)
+        variation_absolute = context.get("variation_absolute", 0)
+        current_value = context.get("current_value", 0)
+        previous_value = context.get("previous_value", 0)
+        period_current = context.get("period_current", "actual")
+        period_previous = context.get("period_previous", "anterior")
+
+        if not self.should_generate_question(variation_percent, variation_absolute, account_name):
+            return None, None
+
+        match = self._match_rule_with_details(account_code, account_name)
+        rule: Optional[QuestionRule] = match[0] if match else None
+        matched_prefix: Optional[str] = match[1] if match else None
+        matched_pattern: Optional[str] = match[2] if match else None
+
+        if not rule:
+            if abs(variation_percent) > 20:
+                direction = "incrementado" if variation_percent > 0 else "disminuido"
+                question = (
+                    f"La cuenta ha {direction} un {abs(variation_percent):.1f}% "
+                    f"(de {previous_value:,.2f} a {current_value:,.2f}). "
+                    f"Por favor, explique el motivo de esta variación significativa."
+                )
+                reason = (
+                    f"Regla aplicada: fallback (sin match). "
+                    f"Umbrales: |%|>20 (fallback). "
+                    f"Variación: {variation_percent:+.1f}% | abs: {variation_absolute:+,.2f} | "
+                    f"{period_previous}: {previous_value:,.2f} → {period_current}: {current_value:,.2f}"
+                )
+                return question, reason
+            return None, None
+
+        if variation_percent == 0 and isinstance(variation_absolute, (int, float)):
+            direction_increase = variation_absolute > 0
+        else:
+            direction_increase = variation_percent > 0
+
+        base_question = rule.question_increase if direction_increase else rule.question_decrease
+
+        # Formato estilo plantilla: 2 sub-preguntas con periodos y % (sin bloque extra de valores)
+        try:
+            pct_int = int(round(abs(float(variation_percent))))
+        except Exception:
+            pct_int = 0
+
+        group = account_code[:1] if account_code else ""
+        if group == "7":
+            drivers_topic = "del crecimiento de ingresos" if direction_increase else "de la disminución de ingresos"
+        elif group == "6":
+            drivers_topic = "del incremento de gastos" if direction_increase else "de la reducción de gastos"
+        else:
+            drivers_topic = "de la variación del saldo"
+
+        drivers = (
+            f"(i) Comentar de manera general los principales \"drivers\" {drivers_topic} "
+            f"entre {period_previous} y {period_current} ({pct_int}%)."
+        )
+        follow = f"(ii) {base_question}"
+
+        reason = (
+            f"Regla aplicada: prefijo='{matched_prefix}'"
+            + (f", patrón='{matched_pattern}'" if matched_pattern else ", patrón=genérica")
+            + f", prioridad={rule.priority}. "
+            f"Umbrales: |%|>={self.variation_threshold_percent:.1f} y |abs|>={self.variation_threshold_absolute:,.0f}. "
+            f"Variación: {variation_percent:+.1f}% | abs: {variation_absolute:+,.2f} | "
+            f"{period_previous}: {previous_value:,.2f} → {period_current}: {current_value:,.2f}"
+        )
+
+        return f"{drivers}\n{follow}", reason
     
     def generate_question(self, context: Dict[str, Any]) -> Optional[str]:
         """

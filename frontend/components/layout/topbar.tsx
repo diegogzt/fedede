@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Bell,
   Search,
@@ -14,20 +14,25 @@ import { usePathname } from "next/navigation";
 
 export const Topbar = () => {
   const pathname = usePathname();
-  const [currentDate, setCurrentDate] = useState<string>("");
-  const [dateTime, setDateTime] = useState<string>("");
+  const [{ currentDate, dateTime }, setDateState] = useState<{
+    currentDate: string | null;
+    dateTime: string;
+  }>({ currentDate: null, dateTime: "" });
 
-  // Mover la fecha al cliente para evitar errores de hidratación
   useEffect(() => {
-    const now = new Date();
-    setDateTime(now.toISOString());
-    setCurrentDate(
-      now.toLocaleDateString("es-ES", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      })
-    );
+    const id = window.setTimeout(() => {
+      const now = new Date();
+      setDateState({
+        dateTime: now.toISOString(),
+        currentDate: now.toLocaleDateString("es-ES", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        }),
+      });
+    }, 0);
+
+    return () => window.clearTimeout(id);
   }, []);
 
   // Generate breadcrumb based on pathname

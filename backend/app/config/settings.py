@@ -169,7 +169,7 @@ class ReportConfig:
     language: Language = Language.SPANISH
     
     # Umbrales de materialidad
-    materiality_threshold: float = 100000.0  # 100k por defecto
+    materiality_threshold: float = 500000.0  # derivado del balance de ejemplo (≈ top decil de variaciones)
     percentage_threshold: float = 20.0       # 20% por defecto
     
     # Formato de salida

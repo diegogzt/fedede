@@ -142,7 +142,9 @@ export const Sidebar = () => {
                   className="text-emerald-500 shrink-0"
                 />
                 <span className="flex-1 text-xs text-white truncate">
-                  {activeFile?.name || "Seleccionar archivo"}
+                  {activeFile?.original_filename ||
+                    activeFile?.filename ||
+                    "Seleccionar archivo"}
                 </span>
                 <ChevronDown
                   size={14}
@@ -171,7 +173,7 @@ export const Sidebar = () => {
                           className="text-zinc-500 shrink-0"
                         />
                         <span className="flex-1 text-xs text-zinc-300 truncate">
-                          {file.name}
+                          {file.original_filename || file.filename}
                         </span>
                         {activeFile?.id === file.id && (
                           <Check

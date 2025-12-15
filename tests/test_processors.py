@@ -370,6 +370,37 @@ class TestQAGenerator:
         for prefix in ['10', '20', '30', '40', '50', '60', '70']:
             assert prefix in DEFAULT_ILV_MAPPING
 
+    def test_generate_report_dedup_by_account_code(self):
+        """Si hay cuentas repetidas con el mismo código, no debe duplicar preguntas."""
+        generator = QAGenerator(use_ai=False)
+
+        accounts = [
+            Account(
+                code="70100000",
+                description="Ventas",
+                values={"FY23": 1_000_000, "FY24": 1_100_000},
+            ),
+            Account(
+                code="68130073",
+                description="DOT. AMORT. MAQUINA P",
+                values={"FY23": -1_000, "FY24": -2_000},
+            ),
+            Account(
+                code="68130073",
+                description="DOT. AMORT. MAQUINA POLYFINDER",
+                values={"FY23": -1_000, "FY24": -2_000},
+            ),
+        ]
+
+        periods = [Period.from_string("FY23"), Period.from_string("FY24")]
+        balance = BalanceSheet(accounts=accounts, periods=periods)
+
+        report = generator.generate_report(balance, include_all_accounts=True)
+
+        items = [i for i in report.items if i.account_code == "68130073"]
+        assert len(items) == 1
+        assert "POLYFINDER" in (items[0].description or "")
+
 
 class TestQAItem:
     """Tests para QAItem."""

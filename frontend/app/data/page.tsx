@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   Upload,
   FileSpreadsheet,
@@ -38,6 +38,13 @@ export default function DataPage() {
   const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState(false);
   const [resultMessage, setResultMessage] = useState("");
+
+  // Los umbrales son obligatorios: si no están confirmados, mostrar la sección avanzada.
+  useEffect(() => {
+    if (!config.thresholds_confirmed) {
+      setShowAdvanced(true);
+    }
+  }, [config.thresholds_confirmed]);
 
   const accept = ".xlsx,.xls,.xlsm,.csv,.txt";
   const maxSize = 100; // MB
@@ -107,6 +114,15 @@ export default function DataPage() {
 
   const handleProcess = async () => {
     if (!selectedFile) return;
+
+    if (!config.thresholds_confirmed) {
+      setError("Debes confirmar los umbrales antes de generar el análisis.");
+      setFileError(
+        "Debes confirmar los umbrales antes de generar el análisis."
+      );
+      setShowAdvanced(true);
+      return;
+    }
 
     setProcessing(true);
     setLoading(true);
@@ -388,6 +404,7 @@ export default function DataPage() {
                     onChange={(e) =>
                       updateConfig({
                         variation_threshold: parseFloat(e.target.value) || 20,
+                        thresholds_confirmed: false,
                       })
                     }
                     className="w-full px-3 py-2 rounded-lg border border-zinc-700 bg-zinc-800 text-white focus:border-yellow-500 focus:outline-none"
@@ -412,17 +429,39 @@ export default function DataPage() {
                     onChange={(e) =>
                       updateConfig({
                         materiality_threshold:
-                          parseInt(e.target.value) || 100000,
+                          parseInt(e.target.value) || 500000,
+                        thresholds_confirmed: false,
                       })
                     }
                     className="w-full px-3 py-2 rounded-lg border border-zinc-700 bg-zinc-800 text-white focus:border-yellow-500 focus:outline-none"
                     min={0}
                     step={10000}
-                    placeholder="100000"
+                    placeholder="500000"
                     aria-label="Umbral de materialidad en euros"
                   />
                   <p className="text-xs text-zinc-500">
                     Variaciones absolutas por encima de este valor
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 rounded-lg border border-zinc-800 bg-zinc-900/40 p-3">
+                <input
+                  type="checkbox"
+                  checked={config.thresholds_confirmed}
+                  onChange={(e) =>
+                    updateConfig({ thresholds_confirmed: e.target.checked })
+                  }
+                  className="mt-1 h-4 w-4 accent-yellow-500"
+                  aria-label="Confirmar umbrales"
+                />
+                <div>
+                  <p className="text-sm text-zinc-200">
+                    Confirmo que he revisado los umbrales
+                  </p>
+                  <p className="text-xs text-zinc-500">
+                    Es obligatorio confirmarlos antes de procesar. Si los
+                    cambias, tendrás que confirmarlos de nuevo.
                   </p>
                 </div>
               </div>
@@ -445,7 +484,12 @@ export default function DataPage() {
         )}
         <Button
           onClick={handleProcess}
-          disabled={!selectedFile || processing || success}
+          disabled={
+            !selectedFile ||
+            processing ||
+            success ||
+            !config.thresholds_confirmed
+          }
           className="bg-yellow-500 text-black hover:bg-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed px-8"
         >
           {processing ? (

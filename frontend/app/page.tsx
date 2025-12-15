@@ -40,11 +40,6 @@ export default function Dashboard() {
             documentToFileData(doc)
           );
           setFiles(fileDataList);
-
-          // Auto-seleccionar el más reciente si no hay activo
-          if (fileDataList.length > 0 && !activeFile) {
-            setActiveFile(fileDataList[0]);
-          }
         } catch (err) {
           setError(
             err instanceof Error ? err.message : "Error al cargar datos"

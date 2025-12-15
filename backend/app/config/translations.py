@@ -111,6 +111,16 @@ COLUMN_NAMES: Dict[str, Dict[str, str]] = {
         "es": "Respuesta",
         "en": "Answer"
     },
+
+    # Columnas de respuesta/dirección (export Excel con Q&A)
+    "response": {
+        "es": "Respuesta Dirección",
+        "en": "Management Response"
+    },
+    "follow_up": {
+        "es": "Pregunta de seguimiento ILV",
+        "en": "ILV follow-up question"
+    },
     
     # Pestaña General
     "number": {
@@ -139,15 +149,15 @@ COLUMN_NAMES: Dict[str, Dict[str, str]] = {
 # Traducciones de nombres de pestañas
 SHEET_NAMES: Dict[str, Dict[str, str]] = {
     "general": {
-        "es": "General",
+        "es": "Preguntas generales",
         "en": "General"
     },
     "pl": {
-        "es": "PL",
+        "es": "PT",
         "en": "PL"
     },
     "bs": {
-        "es": "BS",
+        "es": "BL",
         "en": "BS"
     },
     "purchases": {

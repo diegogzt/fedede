@@ -19,34 +19,40 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState<string>("");
 
-  const validateFile = (file: File): boolean => {
-    setError("");
+  const validateFile = useCallback(
+    (file: File): boolean => {
+      setError("");
 
-    // Validar extensión
-    const validExtensions = accept.split(",").map((ext) => ext.trim());
-    const fileExtension = "." + file.name.split(".").pop()?.toLowerCase();
+      // Validar extensión
+      const validExtensions = accept.split(",").map((ext) => ext.trim());
+      const fileExtension = "." + file.name.split(".").pop()?.toLowerCase();
 
-    if (!validExtensions.includes(fileExtension)) {
-      setError(`Formato no válido. Solo se aceptan: ${accept}`);
-      return false;
-    }
+      if (!validExtensions.includes(fileExtension)) {
+        setError(`Formato no válido. Solo se aceptan: ${accept}`);
+        return false;
+      }
 
-    // Validar tamaño
-    const fileSizeMB = file.size / (1024 * 1024);
-    if (fileSizeMB > maxSize) {
-      setError(`El archivo es muy grande. Máximo ${maxSize}MB`);
-      return false;
-    }
+      // Validar tamaño
+      const fileSizeMB = file.size / (1024 * 1024);
+      if (fileSizeMB > maxSize) {
+        setError(`El archivo es muy grande. Máximo ${maxSize}MB`);
+        return false;
+      }
 
-    return true;
-  };
+      return true;
+    },
+    [accept, maxSize]
+  );
 
-  const handleFile = (file: File) => {
-    if (validateFile(file)) {
-      setSelectedFile(file);
-      onFileSelect(file);
-    }
-  };
+  const handleFile = useCallback(
+    (file: File) => {
+      if (validateFile(file)) {
+        setSelectedFile(file);
+        onFileSelect(file);
+      }
+    },
+    [onFileSelect, validateFile]
+  );
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -59,15 +65,18 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     }
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDragActive(false);
 
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFile(e.dataTransfer.files[0]);
-    }
-  }, []);
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        handleFile(e.dataTransfer.files[0]);
+      }
+    },
+    [handleFile]
+  );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();

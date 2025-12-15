@@ -156,7 +156,12 @@ class FinancialAnalyzer:
                     revenue_accounts=revenue_accounts
                 )
                 
-                if result and result.variation_type != VariationType.STABLE:
+                # Por defecto solo nos interesan variaciones accionables.
+                # MINOR_CHANGE suele producir ruido (demasiadas filas con pregunta).
+                if result and result.variation_type not in {
+                    VariationType.STABLE,
+                    VariationType.MINOR_CHANGE,
+                }:
                     results.append(result)
         
         # Ordenar por prioridad y variación

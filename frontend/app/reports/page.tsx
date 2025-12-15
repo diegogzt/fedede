@@ -64,8 +64,26 @@ export default function ReportsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleDownload = (filename: string) => {
-    downloadReport(filename);
+  const getOutputFilename = (outputPath?: string, fallback?: string) => {
+    if (!outputPath) return fallback || "";
+    const parts = outputPath.split(/[\\/]/);
+    return parts[parts.length - 1] || fallback || "";
+  };
+
+  const handleDownload = async (file: (typeof files)[0]) => {
+    const outputFilename = getOutputFilename(file.output_path, file.filename);
+    if (!outputFilename) {
+      setError("No se encontró el archivo de salida para descargar");
+      return;
+    }
+
+    try {
+      await downloadReport(outputFilename);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Error al descargar el archivo"
+      );
+    }
   };
 
   const handleDelete = async (id: number) => {
@@ -343,7 +361,7 @@ export default function ReportsPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleDownload(file.filename)}
+                            onClick={() => handleDownload(file)}
                             className="border-zinc-700 text-zinc-400 hover:text-white"
                             title="Descargar"
                           >

@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  FileText,
-  Download,
-  CheckCircle2,
-  AlertCircle,
-  Clock,
-} from "lucide-react";
+import { FileText, Download, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface Document {

@@ -116,6 +116,9 @@ class ExcelReader:
                     message="El archivo no contiene datos"
                 )
             
+            # Renombrar columnas duplicadas para evitar problemas con pandas
+            self._rename_duplicate_columns()
+            
             # Detectar estructura
             self._detect_columns()
             self._detect_periods()
@@ -250,6 +253,35 @@ class ExcelReader:
                 file_path=str(self.file_path),
                 message=f"Error al leer Excel: {str(e)}"
             )
+    
+    def _rename_duplicate_columns(self) -> None:
+        """
+        Renombra columnas duplicadas añadiendo sufijos únicos.
+        
+        Esto evita problemas cuando hay múltiples columnas con el mismo nombre,
+        lo cual causa que pandas devuelva una Series en lugar de un valor escalar.
+        """
+        if self._df is None:
+            return
+        
+        # Contar ocurrencias de cada nombre de columna
+        column_counts: Dict[str, int] = {}
+        new_columns = []
+        
+        for col in self._df.columns:
+            col_str = str(col)
+            
+            # Si ya existe, añadir sufijo
+            if col_str in column_counts:
+                column_counts[col_str] += 1
+                new_name = f"{col_str}_{column_counts[col_str]}"
+                new_columns.append(new_name)
+                logger.debug(f"Renombrando columna duplicada: '{col_str}' -> '{new_name}'")
+            else:
+                column_counts[col_str] = 0
+                new_columns.append(col_str)
+        
+        self._df.columns = new_columns
     
     def _detect_columns(self) -> None:
         """Detecta las columnas de código y descripción."""
