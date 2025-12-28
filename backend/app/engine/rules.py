@@ -1111,6 +1111,39 @@ class RuleEngine:
 
         return f"{drivers}\n{follow}", reason
     
+    def check_sign_nature(self, account_code: str, current_value: float) -> Optional[str]:
+        """
+        Verifica si el signo de la cuenta es contrario a su naturaleza.
+        
+        Args:
+            account_code: Código de cuenta
+            current_value: Valor actual
+            
+        Returns:
+            Pregunta si el signo es anómalo, None si es correcto
+        """
+        if not account_code:
+            return None
+            
+        # Activos (Grupo 2, 3, 43, 44, 57) suelen ser positivos (deudores)
+        # Pasivos (Grupo 1, 40, 41, 52) suelen ser negativos (acreedores) en el SyS
+        # NOTA: Depende de cómo se exporte el SyS. Asumimos formato estándar:
+        # Activos (+), Pasivos (-), Ingresos (-), Gastos (+)
+        
+        first_digit = account_code[0]
+        
+        # Cuentas de Activo que deberían ser positivas
+        if first_digit in ['2', '3'] or account_code.startswith(('43', '44', '57')):
+            if current_value < -0.01: # Margen para redondeo
+                return f"Hemos detectado un saldo con signo contrario a su naturaleza en esta cuenta de activo ({current_value:,.2f}). Por favor, explique el motivo de este saldo acreedor."
+                
+        # Cuentas de Pasivo que deberían ser negativas
+        if first_digit == '1' or account_code.startswith(('40', '41', '52')):
+            if current_value > 0.01:
+                return f"Hemos detectado un saldo con signo contrario a su naturaleza en esta cuenta de pasivo ({current_value:,.2f}). Por favor, explique el motivo de este saldo deudor."
+                
+        return None
+
     def generate_question(self, context: Dict[str, Any]) -> Optional[str]:
         """
         Genera una pregunta de auditoría basada en el contexto de la cuenta.

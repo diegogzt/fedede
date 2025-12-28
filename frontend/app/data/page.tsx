@@ -4,6 +4,7 @@ import React, { useState, useCallback, useEffect } from "react";
 import {
   Upload,
   FileSpreadsheet,
+  FileText,
   X,
   AlertCircle,
   Settings,
@@ -38,6 +39,7 @@ export default function DataPage() {
   const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState(false);
   const [resultMessage, setResultMessage] = useState("");
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
 
   // Los umbrales son obligatorios: si no están confirmados, mostrar la sección avanzada.
   useEffect(() => {
@@ -128,6 +130,7 @@ export default function DataPage() {
     setLoading(true);
     setError(null);
     setSuccess(false);
+    setDownloadUrl(null);
 
     try {
       const result = await processDocument(
@@ -137,7 +140,10 @@ export default function DataPage() {
 
       if (result.success) {
         setSuccess(true);
-        setResultMessage(result.message);
+        setResultMessage(result.message || "");
+        if (result.download_url) {
+          setDownloadUrl(result.download_url);
+        }
 
         // Agregar al store si hay documento
         if (result.document) {
@@ -171,13 +177,21 @@ export default function DataPage() {
     label: string;
     description: string;
   }[] = [
-    { value: "es", label: "Español", description: "Genera reporte en español" },
     {
-      value: "en",
+      value: Language.ES,
+      label: "Español",
+      description: "Genera reporte en español",
+    },
+    {
+      value: Language.EN,
       label: "English",
       description: "Generate report in English",
     },
-    { value: "both", label: "Bilingüe", description: "Genera ambos idiomas" },
+    {
+      value: Language.BOTH,
+      label: "Bilingüe",
+      description: "Genera ambos idiomas",
+    },
   ];
 
   return (
@@ -271,6 +285,22 @@ export default function DataPage() {
                         {resultMessage}
                       </p>
                     )}
+                    {success && downloadUrl && (
+                      <div className="mt-3">
+                        <Button
+                          onClick={() => {
+                            const url = downloadUrl.startsWith("http")
+                              ? downloadUrl
+                              : `http://localhost:8000${downloadUrl}`;
+                            window.open(url, "_blank");
+                          }}
+                          className="bg-green-600 hover:bg-green-500 text-white text-xs h-8"
+                        >
+                          <FileText className="w-3.5 h-3.5 mr-1.5" />
+                          Descargar Q&A (Excel)
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <button
@@ -356,7 +386,7 @@ export default function DataPage() {
                   </label>
                   <input
                     type="number"
-                    value={config.fiscal_year_start}
+                    value={config.fiscal_year_start ?? 2023}
                     onChange={(e) =>
                       updateConfig({
                         fiscal_year_start: parseInt(e.target.value) || 2023,
@@ -376,7 +406,7 @@ export default function DataPage() {
                   </label>
                   <input
                     type="number"
-                    value={config.fiscal_year_end}
+                    value={config.fiscal_year_end ?? 2024}
                     onChange={(e) =>
                       updateConfig({
                         fiscal_year_end: parseInt(e.target.value) || 2024,
@@ -400,7 +430,7 @@ export default function DataPage() {
                   </label>
                   <input
                     type="number"
-                    value={config.variation_threshold}
+                    value={config.variation_threshold ?? 20}
                     onChange={(e) =>
                       updateConfig({
                         variation_threshold: parseFloat(e.target.value) || 20,
@@ -425,7 +455,7 @@ export default function DataPage() {
                   </label>
                   <input
                     type="number"
-                    value={config.materiality_threshold}
+                    value={config.materiality_threshold ?? 500000}
                     onChange={(e) =>
                       updateConfig({
                         materiality_threshold:
@@ -445,10 +475,56 @@ export default function DataPage() {
                 </div>
               </div>
 
+              {/* Enfoque Específico */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-medium text-zinc-300">
+                    <FileText className="w-4 h-4 text-yellow-500" />
+                    Cuentas de Enfoque
+                  </label>
+                  <input
+                    type="text"
+                    value={config.focus_accounts ?? ""}
+                    onChange={(e) =>
+                      updateConfig({
+                        focus_accounts: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 rounded-lg border border-zinc-700 bg-zinc-800 text-white focus:border-yellow-500 focus:outline-none"
+                    placeholder="Ej: 70, 64, 43000001"
+                    aria-label="Cuentas de enfoque"
+                  />
+                  <p className="text-xs text-zinc-500">
+                    Códigos o prefijos separados por comas
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-medium text-zinc-300">
+                    <Calendar className="w-4 h-4 text-yellow-500" />
+                    Periodos de Enfoque
+                  </label>
+                  <input
+                    type="text"
+                    value={config.focus_periods ?? ""}
+                    onChange={(e) =>
+                      updateConfig({
+                        focus_periods: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 rounded-lg border border-zinc-700 bg-zinc-800 text-white focus:border-yellow-500 focus:outline-none"
+                    placeholder="Ej: FY23-FY24, YTD24-YTD25"
+                    aria-label="Periodos de enfoque"
+                  />
+                  <p className="text-xs text-zinc-500">
+                    Pares de comparación (Base-Compara)
+                  </p>
+                </div>
+              </div>
+
               <div className="flex items-start gap-3 rounded-lg border border-zinc-800 bg-zinc-900/40 p-3">
                 <input
                   type="checkbox"
-                  checked={config.thresholds_confirmed}
+                  checked={config.thresholds_confirmed || false}
                   onChange={(e) =>
                     updateConfig({ thresholds_confirmed: e.target.checked })
                   }

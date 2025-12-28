@@ -88,7 +88,38 @@ Salida:
 
 ---
 
-## 2. Agregación por Periodo
+## 3. Validación de Naturaleza de Signo
+
+### Problema
+
+En contabilidad, ciertas cuentas deben tener un signo específico (ej: Activos suelen ser positivos/deudores). Un saldo acreedor en una cuenta de activo suele indicar un error de clasificación o una anomalía que requiere investigación.
+
+### Algoritmo: `check_sign_nature()`
+
+**Ubicación:** `backend/app/engine/rules.py`
+
+1. **Identificación**: Se buscan palabras clave en la descripción de la cuenta (ej: "Clientes", "Existencias", "Inmovilizado").
+2. **Verificación**: Si la cuenta es de activo y tiene un saldo negativo (acreedor) en el periodo actual, se genera una pregunta de prioridad **ALTA**.
+3. **Justificación**: Se explica que la naturaleza de la cuenta es deudora y el saldo actual es acreedor.
+
+---
+
+## 4. Lógica de Enfoque (Focus Accounts/Periods)
+
+### Problema
+
+A veces, el equipo de auditoría necesita analizar cuentas específicas o periodos concretos independientemente de si superan los umbrales de materialidad.
+
+### Implementación
+
+**Ubicación:** `backend/app/processors/qa_generator.py`
+
+- **Focus Accounts**: Si se proporcionan códigos de cuenta específicos, el sistema genera preguntas para esas cuentas incluso si la variación es 0 o inferior a la materialidad.
+- **Focus Periods**: Permite definir comparativas específicas (ej: "FY23 vs FY24") que el sistema priorizará en el análisis.
+
+---
+
+## 5. Agregación por Periodo
 
 ### Problema
 

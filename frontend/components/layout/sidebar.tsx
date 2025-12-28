@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useFiles, useActiveFile } from "@/lib/store";
+import { useFiles, useActiveFile, useConfig } from "@/lib/store";
 
 const menuItems = [
   {
@@ -26,28 +26,36 @@ const menuItems = [
     description: "Vista general",
   },
   {
-    icon: FileText,
-    label: "Reportes",
-    href: "/reports",
-    description: "Documentos generados",
-  },
-  {
     icon: Upload,
     label: "Cargar datos",
     href: "/data",
     description: "Subir archivos Excel",
   },
   {
+    icon: FileText,
+    label: "Reportes",
+    href: "/reports",
+    description: "Documentos generados",
+  },
+  {
     icon: BarChart3,
     label: "Analíticas",
     href: "/analytics",
     description: "Gráficos y métricas",
+    advanced: true,
   },
   {
     icon: ClipboardCheck,
     label: "Auditoría",
     href: "/audit",
     description: "Historial de cambios",
+    advanced: true,
+  },
+  {
+    icon: Settings,
+    label: "Configuración",
+    href: "/settings",
+    description: "Ajustes del sistema",
   },
 ];
 
@@ -55,7 +63,12 @@ export const Sidebar = () => {
   const pathname = usePathname();
   const { files } = useFiles();
   const { activeFile, setActiveFile } = useActiveFile();
+  const { config } = useConfig();
   const [isFileMenuOpen, setIsFileMenuOpen] = React.useState(false);
+
+  const filteredMenuItems = menuItems.filter(
+    (item) => !item.advanced || config.show_advanced_sections
+  );
 
   return (
     <aside className="w-56 h-screen bg-zinc-950 border-r border-zinc-800 flex flex-col">
@@ -73,7 +86,7 @@ export const Sidebar = () => {
               NEXUS
             </h1>
             <p className="text-[9px] font-medium text-zinc-500 tracking-widest uppercase">
-              Finance AI
+              Finance DD
             </p>
           </div>
         </div>
@@ -91,7 +104,7 @@ export const Sidebar = () => {
           </div>
 
           <div className="space-y-0.5">
-            {menuItems.map((item) => {
+            {filteredMenuItems.map((item) => {
               const isActive = pathname === item.href;
               return (
                 <Link
@@ -143,7 +156,7 @@ export const Sidebar = () => {
                 />
                 <span className="flex-1 text-xs text-white truncate">
                   {activeFile?.original_filename ||
-                    activeFile?.filename ||
+                    activeFile?.name ||
                     "Seleccionar archivo"}
                 </span>
                 <ChevronDown
@@ -173,7 +186,7 @@ export const Sidebar = () => {
                           className="text-zinc-500 shrink-0"
                         />
                         <span className="flex-1 text-xs text-zinc-300 truncate">
-                          {file.original_filename || file.filename}
+                          {file.original_filename || file.name}
                         </span>
                         {activeFile?.id === file.id && (
                           <Check

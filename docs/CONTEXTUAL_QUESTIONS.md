@@ -46,6 +46,14 @@ Ejemplos de razones:
 - "Nueva cuenta significativa (4.3% de ingresos) sin presencia en periodos anteriores"
 - "Disminución de 5pp sobre ingresos indica cambio estructural en costos"
 
+## Nuevas Reglas Deterministas (FDD Específicas)
+
+Además de la generación por IA, se han implementado reglas deterministas críticas para el Due Diligence Financiero:
+
+1. **Validación de Naturaleza de Signo**: Detecta automáticamente si una cuenta de activo tiene saldo acreedor (negativo), lo cual es una anomalía contable de alta prioridad.
+2. **Lógica de Enfoque (Focus)**: Permite forzar la generación de preguntas para cuentas o periodos específicos definidos por el usuario, ignorando los umbrales de materialidad.
+3. **Plantilla de Auditoría Estándar**: El sistema ahora incluye 25 puntos de control fijos en la hoja "General" del reporte Excel, asegurando que los temas críticos (CIRBE, Impuestos, Personal) siempre sean revisados.
+
 ## Implementación Técnica
 
 ### 1. Nuevos Prompts en `src/ai/prompts.py`

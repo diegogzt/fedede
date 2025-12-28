@@ -407,6 +407,9 @@ class QAReport:
     # Totales y resúmenes
     total_revenue: Dict[str, float] = field(default_factory=dict)
     
+    # Preguntas personalizadas o generales
+    custom_questions: List[Dict[str, Any]] = field(default_factory=list)
+    
     def get_items_by_priority(self, priority: Priority) -> List[QAItem]:
         """Obtiene items por prioridad."""
         return [item for item in self.items if item.priority == priority]

@@ -230,6 +230,8 @@ async def process_document(
     materiality_threshold: float = Form(...),
     thresholds_confirmed: bool = Form(...),
     language: Optional[str] = Form(None),
+    focus_accounts: Optional[str] = Form(None),
+    focus_periods: Optional[str] = Form(None),
 ):
     try:
         if not thresholds_confirmed:
@@ -252,9 +254,31 @@ async def process_document(
         logger.info(f"Balance cargado: {len(balance.accounts)} cuentas")
 
         # 3. Generar Reporte Q&A
+        # Parsear focus_accounts y focus_periods si vienen como JSON string
+        parsed_focus_accounts = []
+        if focus_accounts:
+            try:
+                parsed_focus_accounts = json.loads(focus_accounts)
+            except Exception:
+                parsed_focus_accounts = [a.strip() for a in focus_accounts.split(",") if a.strip()]
+
+        parsed_focus_periods = []
+        if focus_periods:
+            try:
+                parsed_focus_periods = json.loads(focus_periods)
+            except Exception:
+                # Formato esperado: "FY23-FY24,YTD24-YTD25"
+                pairs = [p.strip() for p in focus_periods.split(",") if p.strip()]
+                for pair in pairs:
+                    if "-" in pair:
+                        p1, p2 = pair.split("-", 1)
+                        parsed_focus_periods.append((p1.strip(), p2.strip()))
+
         analysis_config = AnalysisConfig(
             significant_variation_threshold=float(variation_threshold),
             high_priority_absolute=float(materiality_threshold),
+            focus_accounts=parsed_focus_accounts,
+            focus_periods=parsed_focus_periods
         )
 
         generator = QAGenerator(

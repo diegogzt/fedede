@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "NEXUS Finance AI",
+  title: "NEXUS Finance DD",
   description: "Financial Dashboard",
 };
 

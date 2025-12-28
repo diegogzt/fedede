@@ -398,10 +398,10 @@ class ExcelExporter:
         ws.column_dimensions['A'].width = 5
         ws.column_dimensions['B'].width = 15
         ws.column_dimensions['C'].width = 80
-        ws.column_dimensions['D'].width = 12
-        ws.column_dimensions['E'].width = 15
-        ws.column_dimensions['F'].width = 10
-        ws.column_dimensions['G'].width = 12
+        ws.column_dimensions['D'].width = 18
+        ws.column_dimensions['E'].width = 18
+        ws.column_dimensions['F'].width = 18
+        ws.column_dimensions['G'].width = 18
         ws.column_dimensions['H'].width = 45
         ws.column_dimensions['I'].width = 45
 
@@ -539,6 +539,18 @@ class ExcelExporter:
             'link': 'n.a.',
             'status': status_open
         })
+
+        # Agregar preguntas personalizadas del reporte
+        if hasattr(report, 'custom_questions') and report.custom_questions:
+            for cq in report.custom_questions:
+                summary_items.append({
+                    'area': cq.get('area', 'General'),
+                    'question': cq.get('question', ''),
+                    'priority': cq.get('priority', priority_medium),
+                    'date': cq.get('date', today),
+                    'link': cq.get('link', 'n.a.'),
+                    'status': cq.get('status', status_open)
+                })
 
         # Items 9-24: Lista completa de preguntas generales (según plantilla)
         # 9 Subvenciones
@@ -714,6 +726,17 @@ class ExcelExporter:
             'link': 'n.a.',
             'status': status_open,
         })
+
+        # 25 Ventas
+        summary_items.append({
+            'area': 'Ventas',
+            'question': 'i) Por favor explicar la naturaleza de cada una de las tipologías de ventas descritas en el desglose de ingresos.\n'
+                        'ii) Igualmente, si existen ventas sin clasificación, por favor actualizar el archivo con estas ventas clasificadas.',
+            'priority': priority_high,
+            'date': today,
+            'link': 'n.a.',
+            'status': status_open,
+        })
         
         return summary_items
     
@@ -845,13 +868,13 @@ class ExcelExporter:
         # Periodos
         base_period_col = 6  # F
         for idx in range(len(periods)):
-            ws.column_dimensions[get_column_letter(base_period_col + idx)].width = 10
+            ws.column_dimensions[get_column_letter(base_period_col + idx)].width = 18
 
         # Q&A (tras Mapping+Cuenta+Descripción y Periodos)
         qa_start = 5 + len(periods) + 1
         ws.column_dimensions[get_column_letter(qa_start)].width = 60      # Pregunta
-        ws.column_dimensions[get_column_letter(qa_start + 1)].width = 12  # Prioridad
-        ws.column_dimensions[get_column_letter(qa_start + 2)].width = 12  # Estatus
+        ws.column_dimensions[get_column_letter(qa_start + 1)].width = 15  # Prioridad
+        ws.column_dimensions[get_column_letter(qa_start + 2)].width = 15  # Estatus
         ws.column_dimensions[get_column_letter(qa_start + 3)].width = 45  # Respuesta
         ws.column_dimensions[get_column_letter(qa_start + 4)].width = 45  # Seguimiento
 

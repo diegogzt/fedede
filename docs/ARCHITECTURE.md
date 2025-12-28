@@ -19,39 +19,44 @@ graph TD
 
 ### 1. Frontend (Next.js)
 
-- **Tecnología**: Next.js 14 (App Router), React, TypeScript.
-- **UI**: Tailwind CSS, Shadcn UI, Lucide React.
+- **Tecnología**: Next.js 15+, React 19, TypeScript.
+- **Estado Global**: Zustand para la gestión de archivos activos y configuración.
+- **UI**: Tailwind CSS 4, Shadcn UI, Lucide React.
+- **Comunicación**:
+  - Cliente API centralizado en `frontend/lib/api.ts`.
+  - Proxy configurado en `next.config.ts` para redirigir `/api` al backend.
+  - Hooks personalizados como `useReport` para la gestión de datos de reportes.
 - **Responsabilidad**:
   - Interfaz de usuario para carga de archivos.
   - Visualización de estado de procesamiento.
   - Dashboard de historial de documentos (Traceability).
-  - Comunicación con el Backend vía REST.
+  - Análisis financiero y visualización de KPIs (Revenue, Expenses).
 
 ### 2. Backend (FastAPI)
 
 - **Tecnología**: Python 3.12, FastAPI, Uvicorn.
 - **Responsabilidad**:
-  - Exposición de endpoints REST (`/process-document`, `/history`).
+  - Exposición de endpoints REST (`/process-document`, `/history`, `/report/{id}`).
   - Gestión de carga y descarga de archivos.
-  - Orquestación del procesamiento.
-  - Registro de auditoría en base de datos.
+  - Orquestación del procesamiento determinista.
+  - Registro de auditoría en base de datos SQLite.
 
 ### 3. Motor de Reglas (Rule Engine)
 
 - **Ubicación**: `backend/app/engine/rules.py`
 - **Responsabilidad**:
-  - Reemplaza la lógica de IA anterior.
-  - Aplica reglas deterministas basadas en patrones (Regex) y umbrales.
-  - Filtra transacciones irrelevantes (ej. "RENTING KIA").
+  - Aplica reglas deterministas basadas en patrones (Regex) y umbrales de materialidad y variación.
+  - Filtra transacciones irrelevantes.
   - Genera preguntas de auditoría basadas en anomalías detectadas.
 
 ### 4. Procesamiento de Datos
 
 - **Ubicación**: `backend/app/processors/`
 - **Responsabilidad**:
-  - `excel_reader.py`: Lectura y normalización de archivos Excel.
+  - `excel_reader.py`: Lectura y normalización de archivos Excel/CSV.
   - `qa_generator.py`: Generación de reportes de preguntas y respuestas.
-  - `data_normalizer.py`: Limpieza y estandarización de datos financieros.
+  - `financial_analyzer.py`: Análisis de variaciones entre periodos.
+  - `models.py`: Definiciones de modelos Pydantic para la API.
 
 ### 5. Trazabilidad (Traceability)
 
@@ -59,18 +64,18 @@ graph TD
 - **Tecnología**: SQLite.
 - **Responsabilidad**:
   - Almacena un registro de cada archivo procesado.
-  - Guarda metadatos: nombre de archivo, fecha, estado, ruta de salida.
-  - Permite auditoría del uso del sistema.
+  - Guarda metadatos: nombre de archivo, fecha, estado, conteo de preguntas por prioridad.
+  - Permite la persistencia del historial entre sesiones.
 
 ## Flujo de Datos
 
 1. **Carga**: El usuario sube un archivo Excel desde el Frontend.
-2. **Recepción**: FastAPI recibe el archivo y lo guarda temporalmente en `data/input`.
+2. **Recepción**: FastAPI recibe el archivo, los umbrales y el idioma.
 3. **Procesamiento**:
-   - Se lee el Excel.
-   - Se normalizan los datos.
-   - El `RuleEngine` analiza cada fila.
-   - Se genera un reporte CSV/Excel con los hallazgos.
-4. **Persistencia**: Se registra el evento en la base de datos SQLite.
-5. **Respuesta**: El Backend devuelve la URL de descarga y el estado.
-6. **Visualización**: El Frontend muestra el éxito y actualiza la tabla de historial.
+   - Se lee el Excel y se normalizan los datos.
+   - El `FinancialAnalyzer` calcula variaciones.
+   - El `RuleEngine` genera preguntas basadas en los hallazgos.
+   - Se genera un reporte JSON y se prepara la exportación a Excel.
+4. **Persistencia**: Se registra el evento en la base de datos SQLite con el estado `success` o `error`.
+5. **Respuesta**: El Backend devuelve el objeto `ProcessedDocument`.
+6. **Visualización**: El Frontend actualiza el estado global (Zustand) y muestra los resultados en el Dashboard y Analytics.

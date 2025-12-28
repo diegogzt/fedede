@@ -272,7 +272,8 @@ class QAGenerator:
         self,
         balance: BalanceSheet,
         include_all_accounts: bool = False,
-        min_priority: Priority = Priority.BAJA
+        min_priority: Priority = Priority.BAJA,
+        custom_questions: Optional[List[Dict[str, Any]]] = None
     ) -> QAReport:
         """
         Genera el reporte Q&A completo - UNA FILA POR CUENTA.
@@ -281,6 +282,7 @@ class QAGenerator:
             balance: BalanceSheet con datos
             include_all_accounts: Si incluir cuentas sin variación significativa
             min_priority: Prioridad mínima a incluir
+            custom_questions: Lista de preguntas personalizadas para la pestaña General
             
         Returns:
             QAReport con todos los items
@@ -293,7 +295,26 @@ class QAGenerator:
         ytd_all = list(fiscal_periods.get('ytd_periods', []) or [])
         fy_periods = fy_all[-2:] if len(fy_all) >= 2 else fy_all
         ytd_periods = ytd_all[-2:] if len(ytd_all) >= 2 else ytd_all
-        target_periods = fy_periods + ytd_periods
+        
+        # Si hay focus_periods en la configuración, usarlos
+        if self.analyzer.config and self.analyzer.config.focus_periods:
+            # Extraer periodos únicos de los pares de enfoque
+            focus_period_names = set()
+            for p1, p2 in self.analyzer.config.focus_periods:
+                focus_period_names.add(p1)
+                focus_period_names.add(p2)
+            target_periods = sorted(list(focus_period_names))
+            comparison_pairs = self.analyzer.config.focus_periods
+        else:
+            target_periods = fy_periods + ytd_periods
+            # Generar pares de comparación
+            comparison_pairs = []
+            if len(fy_periods) >= 2:
+                comparison_pairs.append((fy_periods[0], fy_periods[1]))
+            if len(ytd_periods) >= 2:
+                comparison_pairs.append((ytd_periods[0], ytd_periods[1]))
+            if not comparison_pairs:
+                comparison_pairs = self.normalizer.get_comparison_pairs(balance)
         
         # Agregar valores a periodos fiscales
         aggregated = self.normalizer.aggregate_to_periods(balance, target_periods)
@@ -343,14 +364,18 @@ class QAGenerator:
 
         unique_account_codes = list(descriptions_by_code.keys())
 
+        # Cuentas de enfoque (siempre incluir)
+        focus_accounts = []
+        if self.analyzer.config:
+            focus_accounts = self.analyzer.config.focus_accounts
+
         for account_code in unique_account_codes:
             descriptions = descriptions_by_code.get(account_code) or []
-            # Usar la descripción más específica (más larga) si hay varias.
             description = max(descriptions, key=len) if descriptions else ''
 
             account_variations = variations_by_account.get(account_code, [])
             
-            # Determinar prioridad máxima de las variaciones de esta cuenta
+            # Determinar prioridad máxima
             if account_variations:
                 max_priority = min(
                     (priority_order[v.priority] for v in account_variations),
@@ -363,14 +388,17 @@ class QAGenerator:
             else:
                 priority = Priority.BAJA
             
-            # Filtrar por prioridad mínima
-            if priority_order[priority] > min_priority_value:
+            # Forzar inclusión si es cuenta de enfoque
+            is_focus = account_code in focus_accounts or any(account_code.startswith(f) for f in focus_accounts)
+            
+            # Filtrar por prioridad mínima (a menos que sea focus)
+            if not is_focus and priority_order[priority] > min_priority_value:
                 if not include_all_accounts:
                     continue
             
             # Obtener valores agregados
             account_values = aggregated.get(account_code, {})
-            if not account_values and not include_all_accounts:
+            if not account_values and not include_all_accounts and not is_focus:
                 continue
             
             # Obtener mapeo ILV
@@ -405,7 +433,16 @@ class QAGenerator:
             question = None
             reason = None
 
-            if account_variations:
+            # 1. Verificar signo anómalo
+            last_period = target_periods[-1] if target_periods else None
+            if last_period and last_period in account_values:
+                sign_question = self.rule_engine.check_sign_nature(account_code, account_values[last_period])
+                if sign_question:
+                    question = sign_question
+                    priority = Priority.ALTA
+                    reason = "Signo contrario a su naturaleza"
+
+            if not question and account_variations:
                 # Estilo “plantilla” para PL (6/7): intenta construir pregunta con FY + YTD si existe.
                 if account_code and account_code.startswith(('6', '7')):
                     q, r = self._generate_pl_like_question(account_code, description, account_variations)
@@ -458,7 +495,8 @@ class QAGenerator:
             items=items,
             source_file=balance.source_file,
             analysis_periods=target_periods,
-            total_revenue=revenue_totals
+            total_revenue=revenue_totals,
+            custom_questions=custom_questions or []
         )
         
         logger.info(f"Reporte Q&A generado: {len(items)} items")

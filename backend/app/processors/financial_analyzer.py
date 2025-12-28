@@ -86,6 +86,12 @@ class AnalysisConfig:
         default_factory=lambda: ['60', '61', '62', '63', '64', '65', '66', '67', '68', '69']
     )
 
+    # Cuentas específicas a analizar (aunque no tengan variación significativa)
+    focus_accounts: List[str] = field(default_factory=list)
+    
+    # Periodos específicos a comparar
+    focus_periods: List[Tuple[str, str]] = field(default_factory=list)
+
 
 class FinancialAnalyzer:
     """

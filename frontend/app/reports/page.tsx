@@ -71,7 +71,7 @@ export default function ReportsPage() {
   };
 
   const handleDownload = async (file: (typeof files)[0]) => {
-    const outputFilename = getOutputFilename(file.output_path, file.filename);
+    const outputFilename = getOutputFilename(file.output_path, file.name);
     if (!outputFilename) {
       setError("No se encontró el archivo de salida para descargar");
       return;
@@ -86,7 +86,7 @@ export default function ReportsPage() {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (!confirm("¿Estás seguro de que quieres eliminar este reporte?")) return;
 
     try {
@@ -108,7 +108,7 @@ export default function ReportsPage() {
   // Filtrar archivos
   const filteredFiles = files.filter((file) => {
     const originalFilename = file.original_filename || "";
-    const filename = file.filename || "";
+    const filename = file.name || "";
     const matchesSearch =
       originalFilename.toLowerCase().includes(searchQuery.toLowerCase()) ||
       filename.toLowerCase().includes(searchQuery.toLowerCase());
@@ -335,7 +335,7 @@ export default function ReportsPage() {
                         <div className="flex items-center gap-4 text-sm text-zinc-500">
                           <span className="flex items-center gap-1">
                             {getStatusIcon(file.status)}
-                            {formatDate(file.processed_at)}
+                            {formatDate(file.processed_at || "")}
                           </span>
                           {file.questions_generated !== undefined && (
                             <span>{file.questions_generated} preguntas</span>

@@ -176,7 +176,7 @@ export default function AuditPage() {
         <Card className="border-zinc-800 bg-zinc-900/50">
           <CardHeader>
             <CardTitle className="text-white">
-              {activeFile.original_filename || activeFile.filename}
+              {activeFile.original_filename || activeFile.name}
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-zinc-400">

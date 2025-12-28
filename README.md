@@ -17,6 +17,14 @@ El proyecto está dividido en dos componentes principales:
 
 Para más detalles técnicos, consulta [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
+## Características Principales
+
+- **Análisis Determinista**: Motor de reglas basado en variaciones de materialidad y porcentaje.
+- **Validación de Naturaleza de Signo**: Detección automática de saldos acreedores en cuentas de activo (anomalías contables).
+- **Enfoque Personalizado**: Capacidad de forzar el análisis en cuentas o periodos específicos (Focus Accounts/Periods).
+- **Reportes Bilingües**: Generación de archivos Excel profesionales con 25 puntos de control estándar de auditoría.
+- **Trazabilidad Completa**: Historial de todos los documentos procesados con persistencia en SQLite.
+
 ## Estructura del Proyecto
 
 ```
@@ -46,35 +54,48 @@ FinanceDueDilligenceV1/
 
 ## Instalación y Ejecución
 
-### 1. Backend (Python)
+### Método Rápido (Windows)
+
+Ejecuta el script de desarrollo que configura el entorno, instala dependencias e inicia ambos servidores:
+
+```batch
+scripts\dev.bat
+```
+
+### Método Manual
+
+#### 1. Backend (Python)
 
 ```bash
-cd backend
-python -m venv venv
+# El venv se crea en la raíz
+python -m venv .venv
 # Windows
-.\venv\Scripts\activate
+.venv\Scripts\activate
 # Linux/Mac
-source venv/bin/activate
+source .venv/bin/activate
 
 pip install -r requirements.txt
 
-# Ejecutar servidor de desarrollo
-uvicorn main:app --reload
+# Ejecutar servidor desde la raíz
+set PYTHONPATH=backend
+python -m uvicorn backend.main:app --reload --port 8000
 ```
 
 El backend estará disponible en `http://localhost:8000`.
 
-### 2. Frontend (Next.js)
+#### 2. Frontend (Next.js)
 
 ```bash
 cd frontend
 npm install
-
-# Ejecutar servidor de desarrollo
 npm run dev
 ```
 
 El frontend estará disponible en `http://localhost:3000`.
+
+## Configuración de Red
+
+El frontend utiliza un proxy configurado en `next.config.ts` para redirigir las peticiones `/api/*` al backend (`http://localhost:8000`). Esto evita problemas de CORS y simplifica la configuración en entornos de desarrollo.
 
 ## Uso
 

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import React from "react";
-import { useActiveFile, useFiles } from "@/lib/store";
+import { useActiveFile, useFiles, useConfig } from "@/lib/store";
 import { checkHealth, formatDate } from "@/lib/api";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 export default function SettingsPage() {
   const { activeFile } = useActiveFile();
   const { files } = useFiles();
+  const { config, updateConfig } = useConfig();
   const [health, setHealth] = React.useState<{
     status: string;
     version?: string;
@@ -53,6 +54,33 @@ export default function SettingsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card className="border-zinc-800 bg-zinc-900/50">
           <CardHeader>
+            <CardTitle className="text-white">Interfaz y Navegación</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between p-3 rounded-lg border border-zinc-800 bg-zinc-900/40">
+              <div>
+                <p className="text-sm font-medium text-white">
+                  Mostrar opciones avanzadas
+                </p>
+                <p className="text-xs text-zinc-500">
+                  Habilita las secciones de Auditoría y Analíticas en la barra
+                  lateral.
+                </p>
+              </div>
+              <input
+                type="checkbox"
+                checked={config.show_advanced_sections}
+                onChange={(e) =>
+                  updateConfig({ show_advanced_sections: e.target.checked })
+                }
+                className="h-5 w-5 accent-yellow-500 cursor-pointer"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-zinc-800 bg-zinc-900/50">
+          <CardHeader>
             <CardTitle className="text-white">Estado del sistema</CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-zinc-300 space-y-3">
@@ -92,10 +120,10 @@ export default function SettingsPage() {
             {activeFile ? (
               <div className="space-y-1">
                 <p className="text-white font-medium">
-                  {activeFile.original_filename || activeFile.filename}
+                  {activeFile.original_filename || activeFile.name}
                 </p>
                 <p className="text-zinc-400">
-                  Procesado: {formatDate(activeFile.processed_at)}
+                  Procesado: {formatDate(activeFile.processed_at || "")}
                 </p>
                 <p className="text-zinc-500">
                   Historial: {files.length} archivo(s)

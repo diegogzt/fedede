@@ -12,92 +12,65 @@
 | pytest        | ≥7.0    | Testing                 | 🧪 Dev      |
 | pytest-mock   | ≥3.10   | Mocking en tests        | 🧪 Dev      |
 
-## Dependencias de Producción
+## Dependencias del Frontend (Next.js)
+
+### Next.js (15+)
+
+**Propósito:** Framework de React para aplicaciones web con renderizado híbrido.
+**Uso:** Estructura de la aplicación, enrutamiento (App Router) y optimización de imágenes.
+
+### Zustand (5+)
+
+**Propósito:** Gestión de estado global ligera y escalable.
+**Uso:** Almacenamiento de archivos procesados, configuración de usuario y estado de la interfaz.
+
+### Tailwind CSS (4+)
+
+**Propósito:** Framework de CSS utilitario.
+**Uso:** Estilizado completo de la aplicación con un enfoque "mobile-first" y modo oscuro.
+
+### Lucide React
+
+**Propósito:** Set de iconos vectoriales.
+**Uso:** Iconografía consistente en toda la interfaz.
+
+### Recharts
+
+**Propósito:** Librería de gráficos para React.
+**Uso:** Visualización de datos financieros en la sección de Analytics.
+
+## Dependencias del Backend (Python)
+
+### FastAPI
+
+**Propósito:** Framework web moderno y rápido para construir APIs con Python.
+**Uso:** Definición de endpoints, validación de datos con Pydantic y documentación automática (Swagger).
 
 ### pandas (≥2.0)
 
 **Propósito:** Manipulación y análisis de datos tabulares.
-
 **Uso en el proyecto:**
 
-- `DataNormalizer`: Normalización de datos de balance
-- `ExcelReader`: Conversión de Excel a DataFrames
-- `FinancialAnalyzer`: Cálculos de variaciones
-
-**Funciones principales usadas:**
-
-```python
-# Lectura
-pd.read_excel()
-pd.read_csv()
-
-# Manipulación
-df.groupby()
-df.pivot_table()
-df.merge()
-
-# Agregación
-df.sum()
-df.mean()
-df.apply()
-```
-
-**Por qué esta librería:**
-
-- Estándar de la industria para datos tabulares
-- Rendimiento optimizado con NumPy
-- Excelente manejo de fechas y series temporales
-- Integración nativa con Excel
-
----
+- `DataNormalizer`: Normalización de datos de balance.
+- `ExcelReader`: Conversión de Excel a DataFrames.
+- `FinancialAnalyzer`: Cálculos de variaciones.
 
 ### openpyxl (≥3.1)
 
 **Propósito:** Lectura y escritura de archivos Excel (.xlsx).
-
 **Uso en el proyecto:**
 
-- `ExcelReader`: Lectura de balances de entrada
-- `ExcelExporter`: Generación de reportes con múltiples tabs
-
-**Funciones principales usadas:**
-
-```python
-from openpyxl import Workbook
-from openpyxl.styles import Font, PatternFill, Border
-from openpyxl.utils.dataframe import dataframe_to_rows
-
-# Crear libro
-wb = Workbook()
-ws = wb.active
-
-# Estilos
-ws['A1'].font = Font(bold=True)
-ws['A1'].fill = PatternFill(start_color="...", fill_type="solid")
-
-# Guardar
-wb.save("output.xlsx")
-```
-
-**Por qué esta librería:**
-
-- Soporte completo para .xlsx (Office 2010+)
-- Permite estilos, formatos y múltiples hojas
-- No requiere Excel instalado
-- Alternativas consideradas:
-  - `xlrd`: Solo lectura, obsoleto para xlsx
-  - `xlsxwriter`: Solo escritura
-  - `xlwings`: Requiere Excel instalado
+- `ExcelReader`: Lectura de balances de entrada.
+- `ExcelExporter`: Generación de reportes con múltiples pestañas y estilos.
 
 ---
 
-### openai (≥1.0)
+### Dependencias de IA (Opcionales)
 
-**Propósito:** Generación de preguntas usando GPT-4.
+El sistema actual prioriza un motor de reglas determinista, pero mantiene compatibilidad con:
 
-**Uso en el proyecto:**
-
-- `AIService`: Cliente para OpenAI API
+- **openai**: Para generación de lenguaje natural avanzada.
+- **ollama**: Para ejecución de modelos de lenguaje en local.
 - `prompts.py`: Templates de prompts
 
 **Funciones principales usadas:**

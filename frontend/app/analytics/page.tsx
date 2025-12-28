@@ -16,7 +16,10 @@ import { Button } from "@/components/ui/button";
 import { useActiveFile, useFiles } from "@/lib/store";
 import { formatCurrency, formatDate, type QAReport } from "@/lib/api";
 import { useReport } from "@/lib/hooks/useReport";
-import { getEffectiveTotalExpenses, getEffectiveTotalRevenue } from "@/lib/revenue";
+import {
+  getEffectiveTotalExpenses,
+  getEffectiveTotalRevenue,
+} from "@/lib/revenue";
 
 // Componente para barras de progreso visual (definido fuera del render)
 const WIDTH_CLASS_BY_STEP_5: Record<number, string> = {
@@ -111,10 +114,15 @@ function TrendChart({
             {series.map(({ period, value }) => {
               const pct = maxValue > 0 ? (value / maxValue) * 100 : 0;
               return (
-                <div key={period} className="flex-1 flex flex-col items-center gap-2">
+                <div
+                  key={period}
+                  className="flex-1 flex flex-col items-center gap-2"
+                >
                   <div className="w-full h-20 flex items-end">
                     <div
-                      className={`w-full ${percentToHeightClass(pct)} bg-yellow-500/60 rounded-md border border-yellow-500/30`}
+                      className={`w-full ${percentToHeightClass(
+                        pct
+                      )} bg-yellow-500/60 rounded-md border border-yellow-500/30`}
                       title={`${period}: ${formatCurrency(value)}`}
                     />
                   </div>
@@ -144,10 +152,7 @@ function TrendChart({
               const points = series
                 .map((s, idx) => {
                   const x = idx * xStep;
-                  const y =
-                    maxValue > 0
-                      ? 38 - (s.value / maxValue) * 34
-                      : 38;
+                  const y = maxValue > 0 ? 38 - (s.value / maxValue) * 34 : 38;
                   return `${x},${Math.max(2, Math.min(38, y))}`;
                 })
                 .join(" ");
@@ -164,9 +169,7 @@ function TrendChart({
                   {series.map((s, idx) => {
                     const x = idx * xStep;
                     const y =
-                      maxValue > 0
-                        ? 38 - (s.value / maxValue) * 34
-                        : 38;
+                      maxValue > 0 ? 38 - (s.value / maxValue) * 34 : 38;
                     const cy = Math.max(2, Math.min(38, y));
                     return (
                       <circle
@@ -176,7 +179,9 @@ function TrendChart({
                         r={1.8}
                         className="fill-yellow-500"
                       >
-                        <title>{`${s.period}: ${formatCurrency(s.value)}`}</title>
+                        <title>{`${s.period}: ${formatCurrency(
+                          s.value
+                        )}`}</title>
                       </circle>
                     );
                   })}
@@ -230,15 +235,13 @@ export default function AnalyticsPage() {
 
   const activeReport = useReport(activeFile?.id ?? null);
 
-  const [compareAId, setCompareAId] = React.useState<number | null>(null);
-  const [compareBId, setCompareBId] = React.useState<number | null>(null);
+  const [compareAId, setCompareAId] = React.useState<string | null>(null);
+  const [compareBId, setCompareBId] = React.useState<string | null>(null);
 
-  const [revenueViewMode, setRevenueViewMode] = React.useState<TrendViewMode>(
-    "cards"
-  );
-  const [expenseViewMode, setExpenseViewMode] = React.useState<TrendViewMode>(
-    "cards"
-  );
+  const [revenueViewMode, setRevenueViewMode] =
+    React.useState<TrendViewMode>("cards");
+  const [expenseViewMode, setExpenseViewMode] =
+    React.useState<TrendViewMode>("cards");
 
   React.useEffect(() => {
     if (files.length === 0) return;
@@ -251,16 +254,18 @@ export default function AnalyticsPage() {
 
   const computeReportStats = React.useCallback(
     (r: QAReport | null | undefined) => {
-    if (!r) {
-      return { total: 0, high: 0, medium: 0, low: 0 };
-    }
-    const withQuestion = r.items.filter(
-      (it) => !!(it.question && it.question.trim())
-    );
-    const high = withQuestion.filter((it) => it.priority === "Alta").length;
-    const medium = withQuestion.filter((it) => it.priority === "Media").length;
-    const low = withQuestion.filter((it) => it.priority === "Baja").length;
-    return { total: withQuestion.length, high, medium, low };
+      if (!r) {
+        return { total: 0, high: 0, medium: 0, low: 0 };
+      }
+      const withQuestion = r.items.filter(
+        (it) => !!(it.question && it.question.trim())
+      );
+      const high = withQuestion.filter((it) => it.priority === "Alta").length;
+      const medium = withQuestion.filter(
+        (it) => it.priority === "Media"
+      ).length;
+      const low = withQuestion.filter((it) => it.priority === "Baja").length;
+      return { total: withQuestion.length, high, medium, low };
     },
     []
   );
@@ -342,7 +347,13 @@ export default function AnalyticsPage() {
       expenses: activeExpenses,
       expensePeriods: activeExpensesPeriods,
     };
-  }, [activeFile, activeRevenue, activeRevenuePeriods, activeExpenses, activeExpensesPeriods]);
+  }, [
+    activeFile,
+    activeRevenue,
+    activeRevenuePeriods,
+    activeExpenses,
+    activeExpensesPeriods,
+  ]);
 
   const revenueSeries = React.useMemo(() => {
     if (!currentStats) return [] as Array<{ period: string; value: number }>;
@@ -778,16 +789,14 @@ export default function AnalyticsPage() {
               <p className="text-xs text-zinc-500">Reporte A</p>
               <select
                 value={compareAId ?? ""}
-                onChange={(e) =>
-                  setCompareAId(e.target.value ? Number(e.target.value) : null)
-                }
+                onChange={(e) => setCompareAId(e.target.value || null)}
                 className="w-full bg-zinc-800 border border-zinc-700 text-zinc-300 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-yellow-500"
                 aria-label="Seleccionar reporte A"
               >
                 <option value="">Seleccionar</option>
                 {files.map((f) => (
                   <option key={f.id} value={f.id}>
-                    {formatDate(f.processed_at)} — {f.original_filename}
+                    {formatDate(f.processed_at || "")} — {f.original_filename}
                   </option>
                 ))}
               </select>
@@ -797,16 +806,14 @@ export default function AnalyticsPage() {
               <p className="text-xs text-zinc-500">Reporte B</p>
               <select
                 value={compareBId ?? ""}
-                onChange={(e) =>
-                  setCompareBId(e.target.value ? Number(e.target.value) : null)
-                }
+                onChange={(e) => setCompareBId(e.target.value || null)}
                 className="w-full bg-zinc-800 border border-zinc-700 text-zinc-300 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-yellow-500"
                 aria-label="Seleccionar reporte B"
               >
                 <option value="">Seleccionar</option>
                 {files.map((f) => (
                   <option key={f.id} value={f.id}>
-                    {formatDate(f.processed_at)} — {f.original_filename}
+                    {formatDate(f.processed_at || "")} — {f.original_filename}
                   </option>
                 ))}
               </select>

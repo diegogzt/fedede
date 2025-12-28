@@ -1,103 +1,101 @@
-# Guía de Usuario - FDD (Financial Due Diligence)
+# Guía de Usuario - Fedede (Financial Due Diligence)
 
-## ¿Qué es FDD?
+## ¿Qué es Fedede?
 
-FDD es una aplicación de escritorio que genera automáticamente cuestionarios de Due Diligence financiero a partir de balances contables en formato Excel o CSV.
-
-**Entrada:** Balance mensual con cuentas contables
-**Salida:** Excel con preguntas organizadas por categoría (PL, BS, Compras, etc.)
+Fedede es una aplicación web diseñada para automatizar la generación de cuestionarios de Due Diligence financiero a partir de balances contables. El sistema analiza variaciones entre periodos y aplica reglas de negocio para identificar anomalías que requieren explicación.
 
 ---
 
 ## Inicio Rápido
 
-### 1. Instalación
+### 1. Acceso
 
-```bash
-# Clonar repositorio
-git clone <url-del-repo>
-cd FinanceDueDilligenceV1
+Abre tu navegador en [http://localhost:3000](http://localhost:3000).
 
-# Crear entorno virtual
-python -m venv venv
-venv\Scripts\activate  # Windows
-source venv/bin/activate  # macOS/Linux
+### 2. Carga de Datos
 
-# Instalar dependencias
-pip install -r requirements.txt
-```
+1. Ve a la sección **"Cargar Datos"** en la barra lateral.
+2. Arrastra o selecciona tu archivo de balance (Excel o CSV).
+3. Configura los parámetros de análisis:
+   - **Idioma del Reporte:** Español, Inglés o Bilingüe.
+   - **Umbral de Variación (%):** Porcentaje mínimo de cambio para generar una pregunta.
+   - **Umbral de Materialidad (€):** Valor absoluto mínimo para considerar una variación relevante.
+   - **Configuración Avanzada (Opcional):**
+     - **Cuentas de Enfoque:** Lista de códigos de cuenta (separados por comas) que quieres analizar sí o sí.
+     - **Periodos de Enfoque:** Pares de periodos a comparar (ej: `FY23-FY24, FY24-YTD25`).
+4. Haz clic en **"Procesar Documento"**.
 
-### 2. Configuración Inicial
+### 4. Visualización de Resultados
 
-Crear archivo `.env` en la raíz:
+Una vez procesado, puedes explorar los hallazgos en diferentes vistas:
 
-```env
-# Para usar OpenAI
-OPENAI_API_KEY=tu-clave-api
-
-# Para usar Ollama (local)
-OLLAMA_HOST=http://localhost:11434
-```
-
-### 3. Ejecutar Aplicación
-
-```bash
-python main.py
-```
+- **Dashboard:** Resumen general de preguntas por prioridad (Alta, Media, Baja).
+- **Analytics:** Comparativa visual de ingresos y gastos entre periodos.
+- **Audit:** Lista detallada de todas las preguntas generadas con su justificación técnica.
+- **Reports:** Historial de todos los documentos procesados con opción de descarga.
 
 ---
 
-## Interfaz de Usuario
+## Exportación a Excel
 
-```
-┌────────────────────────────────────────────────────────────────────┐
-│  Financial Due Diligence Generator                            [─][□][×]
-├────────────────────────────────────────────────────────────────────┤
-│                                                                    │
-│  ┌─ Archivo de Entrada ─────────────────────────────────────────┐ │
-│  │  [Seleccionar archivo...]  balance_2024.xlsx                  │ │
-│  └──────────────────────────────────────────────────────────────┘ │
-│                                                                    │
-│  ┌─ Configuración ───────────────────────────────────────────────┐│
-│  │  Umbral variación %: [10   ]    Umbral absoluto: [50000  ]    ││
-│  │  Proveedor IA: [OpenAI ▼]       Modelo: [gpt-4o-mini ▼]       ││
-│  │  [✓] Modo estricto (máxima anonimización)                     ││
-│  └───────────────────────────────────────────────────────────────┘│
-│                                                                    │
-│  ┌─ Progreso ────────────────────────────────────────────────────┐│
-│  │  [████████████████░░░░░░░░░░░░░░] 55%                         ││
-│  │  Procesando: Generando preguntas...                           ││
-│  └───────────────────────────────────────────────────────────────┘│
-│                                                                    │
-│  ┌─ Vista Previa ────────────────────────────────────────────────┐│
-│  │  | Pregunta               | Categoría | FY23    | FY24    |   ││
-│  │  |------------------------|-----------|---------|---------|   ││
-│  │  | Explique la reducción  | PL        | 5.2M    | 3.1M    |   ││
-│  │  | del 40% en ingresos... |           |         |         |   ││
-│  └───────────────────────────────────────────────────────────────┘│
-│                                                                    │
-│  [ Generar Reporte ]                              [ Exportar Excel ]│
-│                                                                    │
-├────────────────────────────────────────────────────────────────────┤
-│  Listo | Último reporte: output_2024-01-15.xlsx                    │
-└────────────────────────────────────────────────────────────────────┘
-```
+El reporte generado incluye una hoja **"General"** con 25 puntos de control estándar de auditoría, que cubren:
+
+- Conciliaciones bancarias.
+- Deuda financiera y CIRBE.
+- Impuestos y Seguridad Social.
+- Ventas y Clientes.
+- Gastos de personal.
+
+---
+
+## Secciones de la Aplicación
+
+### Dashboard
+
+Muestra los KPIs principales del archivo activo o un resumen global si no hay ninguno seleccionado. Incluye gráficos de distribución de prioridades y acceso rápido a los últimos archivos procesados.
+
+### Cargar Datos
+
+El centro de control para nuevos análisis. Permite ajustar los umbrales de auditoría. Es obligatorio confirmar que se han revisado los umbrales antes de procesar.
+
+### Auditoría (Audit)
+
+Vista detallada de las preguntas. Cada ítem incluye:
+
+- Código y descripción de la cuenta.
+- Valores de los periodos comparados.
+- Variación absoluta y porcentual.
+- Pregunta sugerida para el cliente.
+- Prioridad asignada automáticamente.
+
+### Análisis (Analytics)
+
+Gráficos interactivos que muestran la evolución de las partidas principales. Permite comparar rápidamente el impacto de las variaciones en el balance general.
 
 ---
 
 ## Formato de Archivo de Entrada
 
-### Estructura Esperada
+### Estructura Sugerida
 
-| Código  | Descripción    | Ene 2023 | Feb 2023 | ... | Dic 2024 | Ene 2025 |
-| ------- | -------------- | -------- | -------- | --- | -------- | -------- |
-| 7000001 | Ventas España  | 100000   | 110000   | ... | 120000   | 80000    |
-| 7000002 | Ventas Export  | 50000    | 55000    | ... | 60000    | 40000    |
-| 6000001 | Coste Personal | -30000   | -31000   | ... | -35000   | -25000   |
+El sistema es flexible, pero se recomienda que el archivo contenga:
 
-### Requisitos
+- Una columna de **Código** de cuenta.
+- Una columna de **Descripción** de cuenta.
+- Columnas mensuales o anuales con los valores financieros.
 
-- **Formato:** Excel (.xlsx) o CSV
+### Requisitos Técnicos
+
+- **Formatos soportados:** .xlsx, .xls, .xlsm, .csv, .txt.
+- **Tamaño máximo:** 100MB.
+- **Limpieza:** El sistema normaliza automáticamente nombres de columnas y valores nulos.
+
+---
+
+## Exportación
+
+Desde la sección de **Reports**, puedes descargar el análisis final en formato Excel bilingüe, listo para ser enviado al cliente o integrado en el informe de Due Diligence.
+
 - **Columnas obligatorias:** Código, Descripción
 - **Columnas de datos:** Formato "Mes Año" (ej: "Ene 2023", "Feb 2023")
 - **Años:** Mínimo 2 años de datos para comparar

@@ -139,7 +139,7 @@ export default function Dashboard() {
             <Upload className="w-10 h-10 text-zinc-600" />
           </div>
           <h2 className="text-2xl font-bold text-white mb-2">
-            Bienvenido a NEXUS Finance AI
+            Bienvenido a NEXUS Finance DD
           </h2>
           <p className="text-zinc-400 mb-8 max-w-md mx-auto">
             Sube tu primer archivo financiero (Excel o CSV) para generar
@@ -171,7 +171,7 @@ export default function Dashboard() {
                 {activeFile.original_filename}
               </h2>
               <p className="text-xs text-zinc-500">
-                Procesado: {formatDate(activeFile.processed_at)}
+                Procesado: {formatDate(activeFile.processed_at || "")}
               </p>
             </div>
           </div>
@@ -180,9 +180,7 @@ export default function Dashboard() {
             <select
               value={activeFile.id}
               onChange={(e) => {
-                const file = files.find(
-                  (f) => f.id === parseInt(e.target.value)
-                );
+                const file = files.find((f) => f.id === e.target.value);
                 if (file) setActiveFile(file);
               }}
               className="bg-zinc-800 border border-zinc-700 text-zinc-300 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-yellow-500"
@@ -259,103 +257,7 @@ export default function Dashboard() {
       </section>
 
       {/* Main Content */}
-      <section className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-        {/* Distribución de Prioridades */}
-        <div className="xl:col-span-2 bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
-          <div className="flex items-center justify-between p-3 border-b border-zinc-800">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 bg-zinc-800 rounded flex items-center justify-center">
-                <BarChart3 size={14} className="text-yellow-500" />
-              </div>
-              <div>
-                <h3 className="text-sm font-semibold text-white">
-                  Distribución de Prioridades
-                </h3>
-                <p className="text-[10px] text-zinc-500">
-                  {activeFile
-                    ? activeFile.original_filename
-                    : "Todos los reportes"}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-4">
-            {questionsCount > 0 ? (
-              <div className="space-y-4">
-                {/* Barra visual */}
-                <div className="w-full h-4 rounded-full overflow-hidden flex bg-zinc-800">
-                  {highCount > 0 && (
-                    <div
-                      className="bg-red-500 h-full"
-                      style={{
-                        width: `${(highCount / questionsCount) * 100}%`,
-                      }}
-                    />
-                  )}
-                  {mediumCount > 0 && (
-                    <div
-                      className="bg-yellow-500 h-full"
-                      style={{
-                        width: `${(mediumCount / questionsCount) * 100}%`,
-                      }}
-                    />
-                  )}
-                  {lowCount > 0 && (
-                    <div
-                      className="bg-green-500 h-full"
-                      style={{ width: `${(lowCount / questionsCount) * 100}%` }}
-                    />
-                  )}
-                </div>
-
-                {/* Leyenda */}
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="text-center p-4 bg-zinc-800/50 rounded-lg border border-red-500/20">
-                    <div className="w-3 h-3 bg-red-500 rounded-full mx-auto mb-2" />
-                    <p className="text-2xl font-bold text-white">{highCount}</p>
-                    <p className="text-xs text-zinc-400">Alta Prioridad</p>
-                    <p className="text-[10px] text-red-400 mt-1">
-                      {questionsCount > 0
-                        ? `${((highCount / questionsCount) * 100).toFixed(0)}%`
-                        : "0%"}
-                    </p>
-                  </div>
-                  <div className="text-center p-4 bg-zinc-800/50 rounded-lg border border-yellow-500/20">
-                    <div className="w-3 h-3 bg-yellow-500 rounded-full mx-auto mb-2" />
-                    <p className="text-2xl font-bold text-white">
-                      {mediumCount}
-                    </p>
-                    <p className="text-xs text-zinc-400">Media Prioridad</p>
-                    <p className="text-[10px] text-yellow-400 mt-1">
-                      {questionsCount > 0
-                        ? `${((mediumCount / questionsCount) * 100).toFixed(
-                            0
-                          )}%`
-                        : "0%"}
-                    </p>
-                  </div>
-                  <div className="text-center p-4 bg-zinc-800/50 rounded-lg border border-green-500/20">
-                    <div className="w-3 h-3 bg-green-500 rounded-full mx-auto mb-2" />
-                    <p className="text-2xl font-bold text-white">{lowCount}</p>
-                    <p className="text-xs text-zinc-400">Baja Prioridad</p>
-                    <p className="text-[10px] text-green-400 mt-1">
-                      {questionsCount > 0
-                        ? `${((lowCount / questionsCount) * 100).toFixed(0)}%`
-                        : "0%"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-8 text-zinc-500">
-                <BarChart3 className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>Sin datos de prioridades</p>
-              </div>
-            )}
-          </div>
-        </div>
-
+      <section className="grid grid-cols-1 gap-4">
         {/* Actividad Reciente */}
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
           <div className="flex items-center justify-between p-3 border-b border-zinc-800">
@@ -370,7 +272,7 @@ export default function Dashboard() {
           </div>
 
           <div className="divide-y divide-zinc-800">
-            {files.slice(0, 5).map((file) => (
+            {files.slice(0, 10).map((file) => (
               <button
                 key={file.id}
                 onClick={() => setActiveFile(file)}
@@ -400,14 +302,23 @@ export default function Dashboard() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-white truncate">
-                    {file.original_filename}
+                  <p className="text-xs font-medium text-white truncate">
+                    {file.original_filename || file.name}
                   </p>
                   <p className="text-[10px] text-zinc-500">
-                    {file.questions_generated || 0} preguntas •{" "}
-                    {formatDate(file.processed_at)}
+                    {formatDate(
+                      file.processed_at || file.uploadDate?.toISOString() || ""
+                    )}
                   </p>
                 </div>
+                {file.status === "success" && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
+                      {file.questions_generated} Q&A
+                    </span>
+                    <ArrowUpRight size={12} className="text-zinc-600" />
+                  </div>
+                )}
               </button>
             ))}
 
@@ -418,7 +329,7 @@ export default function Dashboard() {
             )}
           </div>
 
-          {files.length > 5 && (
+          {files.length > 10 && (
             <div className="p-2 border-t border-zinc-800">
               <Button
                 variant="outline"
